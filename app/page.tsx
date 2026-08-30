@@ -53,64 +53,69 @@ export default async function Home({
   );
 
   return (
-    <main className="mx-auto w-full max-w-[70rem] px-3 py-4 sm:px-4">
-      <section className="grid gap-3 md:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="relative overflow-hidden rounded-lg bg-black px-5 py-6 text-white md:px-10 md:py-10 border border-slate-200">
-          <h1 className="relative z-10 text-2xl leading-[120%] font-bold md:text-[28px]">
-            Nervos Community Catalyst
+    <main className="mx-auto w-full max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8">
+      {/* Sleek Minimalist Hero */}
+      <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            Nervos Community <span className="text-accent">Catalyst</span>
           </h1>
-          <p className="relative z-10 mt-2.5 max-w-[30rem] text-sm leading-[130%] text-white/90 md:mt-4 md:text-lg">
+          <p className="mt-4 max-w-2xl text-lg text-muted">
             Community Keeps Building. Discover Bounties, Grants, and Spark mini-grants to build the future of CKB.
           </p>
-          <div className="relative z-10 mt-6">
-            <Link
-              href={user ? "/dashboard" : "/auth/sign-up"}
-              className="btn inline-flex rounded-md bg-[#14E082] px-9 py-3 text-sm font-bold text-black hover:bg-[#00CC9B]"
-            >
-              {user ? "Dashboard" : "Sign Up"}
-            </Link>
-          </div>
         </div>
-        <aside className="rounded-lg border border-slate-200 bg-slate-50 p-5">
-          <p className="text-sm font-semibold text-slate-800">
-            Become a Sponsor
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Reach CKB talent in a few clicks. Get writing, design, and
-            development done for the ecosystem.
-          </p>
+        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
           <Link
             href={user ? "/admin/bounties/new" : "/auth/sign-in"}
-            className="btn mt-4 inline-flex rounded-md bg-brand px-4 py-2 text-sm font-medium text-white"
+            className="btn inline-flex items-center justify-center rounded-lg bg-surface px-6 py-3 text-sm font-semibold text-foreground ring-1 ring-inset ring-border hover:bg-surface-hover"
           >
-            Get Started
+            Become a Sponsor
           </Link>
-        </aside>
-      </section>
+          <Link
+            href={user ? "/dashboard" : "/auth/sign-up"}
+            className="btn inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black hover:opacity-90"
+          >
+            {user ? "Dashboard" : "Start Earning"}
+          </Link>
+        </div>
+      </div>
 
-      <section className="mt-8">
-        <ListingFilters
-          category={params.category}
-          type={params.type}
-          priority={params.priority}
-          query={params.q}
-        />
-        <div className="mt-2">
+      <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
+        {/* Left Sidebar for Filters */}
+        <aside className="w-full shrink-0 lg:w-64">
+          <div className="sticky top-20 rounded-xl border border-border bg-surface p-5">
+            <ListingFilters
+              category={params.category}
+              type={params.type}
+              priority={params.priority}
+              query={params.q}
+            />
+          </div>
+        </aside>
+
+        {/* Right Side List of Cards */}
+        <div className="flex-1">
           {listings.length === 0 ? (
-            <p className="py-16 text-center text-sm text-slate-500">
-              No listings found
-            </p>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface py-24 text-center">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-background text-lg font-bold text-muted ring-1 ring-border">
+                0
+              </span>
+              <h3 className="mt-4 text-lg font-semibold text-foreground">No listings found</h3>
+              <p className="mt-2 text-sm text-muted">Try adjusting your filters or search query.</p>
+            </div>
           ) : (
-            listings.map((listing, index) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                submissions={counts[index]}
-              />
-            ))
+            <div className="flex flex-col gap-4">
+              {listings.map((listing, index) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  submissions={counts[index]}
+                />
+              ))}
+            </div>
           )}
         </div>
-      </section>
+      </div>
     </main>
   );
 }

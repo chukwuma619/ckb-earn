@@ -20,7 +20,7 @@ function hrefFor(next: { type?: string; category?: string; priority?: string; q?
   return query ? `/?${query}` : "/";
 }
 
-function Tab({
+function SidebarLink({
   href,
   active,
   children,
@@ -32,33 +32,10 @@ function Tab({
   return (
     <Link
       href={href}
-      className={`relative inline-flex items-center px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors ${
+      className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
         active
-          ? "text-black after:absolute after:bottom-[-6px] after:left-0 after:h-[2px] after:w-full after:bg-[#14E082]"
-          : "text-slate-500 hover:text-black"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function Pill({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`rounded-full border px-3.5 py-0.5 text-[0.8rem] whitespace-nowrap sm:text-sm transition-colors ${
-        active
-          ? "border-black bg-black text-[#14E082] font-medium"
-          : "border-slate-200 text-slate-500 hover:border-black hover:bg-black/5 hover:text-black"
+          ? "bg-accent/10 text-accent"
+          : "text-muted hover:bg-surface-hover hover:text-foreground"
       }`}
     >
       {children}
@@ -82,17 +59,39 @@ export function ListingFilters({
   const currentPriority = priority ?? "all";
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <div className="flex items-center gap-2">
-          <Tab
+    <div className="space-y-8">
+      {/* Search Section */}
+      <div>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
+          Search
+        </h3>
+        <form className="relative">
+          {currentType !== "all" && <input type="hidden" name="type" value={currentType} />}
+          {currentCategory !== "all" && <input type="hidden" name="category" value={currentCategory} />}
+          {currentPriority !== "all" && <input type="hidden" name="priority" value={currentPriority} />}
+          <input
+            name="q"
+            defaultValue={query}
+            placeholder="Keywords..."
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </form>
+      </div>
+
+      {/* Program Type Section */}
+      <div>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
+          Program Type
+        </h3>
+        <div className="flex flex-col gap-1">
+          <SidebarLink
             href={hrefFor({ category: currentCategory, priority: currentPriority, q: query })}
             active={currentType === "all"}
           >
-            All
-          </Tab>
+            All Programs
+          </SidebarLink>
           {listingTypes.map((value) => (
-            <Tab
+            <SidebarLink
               key={value}
               href={hrefFor({
                 type: value,
@@ -103,70 +102,67 @@ export function ListingFilters({
               active={currentType === value}
             >
               {value === "bounty" ? "Bounties" : value === "grant" ? "Grants" : value === "permanent" ? "Permanent" : "Spark"}
-            </Tab>
+            </SidebarLink>
           ))}
         </div>
-        <form>
-          {currentType !== "all" ? (
-            <input type="hidden" name="type" value={currentType} />
-          ) : null}
-          {currentCategory !== "all" ? (
-            <input type="hidden" name="category" value={currentCategory} />
-          ) : null}
-          {currentPriority !== "all" ? (
-            <input type="hidden" name="priority" value={currentPriority} />
-          ) : null}
-          <input
-            name="q"
-            defaultValue={query}
-            placeholder="Search"
-            className="h-8 w-36 rounded-md border border-slate-200 px-2.5 text-sm text-slate-600 outline-none placeholder:text-slate-400 focus:border-slate-400"
-          />
-        </form>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Pill
-          href={hrefFor({ type: currentType, priority: currentPriority, q: query })}
-          active={currentCategory === "all"}
-        >
-          All
-        </Pill>
-        {listingCategories.map((value) => (
-          <Pill
-            key={value}
-            href={hrefFor({
-              type: currentType,
-              category: value,
-              priority: currentPriority,
-              q: query,
-            })}
-            active={currentCategory === value}
+
+      {/* Tracks Section */}
+      <div>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
+          Pathways
+        </h3>
+        <div className="flex flex-col gap-1">
+          <SidebarLink
+            href={hrefFor({ type: currentType, priority: currentPriority, q: query })}
+            active={currentCategory === "all"}
           >
-            {categoryLabel(value)}
-          </Pill>
-        ))}
+            All Pathways
+          </SidebarLink>
+          {listingCategories.map((value) => (
+            <SidebarLink
+              key={value}
+              href={hrefFor({
+                type: currentType,
+                category: value,
+                priority: currentPriority,
+                q: query,
+              })}
+              active={currentCategory === value}
+            >
+              {categoryLabel(value)}
+            </SidebarLink>
+          ))}
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Pill
-          href={hrefFor({ type: currentType, category: currentCategory, q: query })}
-          active={currentPriority === "all"}
-        >
-          All Priorities
-        </Pill>
-        {listingPriorities.map((value) => (
-          <Pill
-            key={value}
-            href={hrefFor({
-              type: currentType,
-              category: currentCategory,
-              priority: value,
-              q: query,
-            })}
-            active={currentPriority === value}
+
+      {/* Priorities Section */}
+      <div>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
+          Priority
+        </h3>
+        <div className="flex flex-col gap-1">
+          <SidebarLink
+            href={hrefFor({ type: currentType, category: currentCategory, q: query })}
+            active={currentPriority === "all"}
           >
-            {priorityLabel(value)}
-          </Pill>
-        ))}
+            All Priorities
+          </SidebarLink>
+          {listingPriorities.map((value) => (
+            <SidebarLink
+              key={value}
+              href={hrefFor({
+                type: currentType,
+                category: currentCategory,
+                priority: value,
+                q: query,
+              })}
+              active={currentPriority === value}
+            >
+              {priorityLabel(value)}
+            </SidebarLink>
+          ))}
+        </div>
       </div>
     </div>
   );

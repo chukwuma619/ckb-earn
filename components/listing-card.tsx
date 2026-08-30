@@ -23,73 +23,84 @@ export function ListingCard({
 
   return (
     <div
-      className={`relative block w-full rounded-md px-2 py-4 no-underline hover:bg-gray-100 sm:px-4 ${
-        featured ? "bg-featured-bg" : ""
+      className={`group relative flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 transition-all hover:border-accent/50 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-5 ${
+        featured ? "bg-featured-bg ring-1 ring-accent/30" : ""
       }`}
     >
       <Link href={`/bounties/${listing.slug}`} className="absolute inset-0 z-0">
         <span className="sr-only">View {listing.title}</span>
       </Link>
-      <div className="relative z-10 flex w-full items-center justify-between pointer-events-none">
-        <div className="flex w-full min-w-0">
-          <div className="mr-3 grid h-14 w-14 shrink-0 place-items-center rounded-md bg-slate-100 text-xs font-semibold text-slate-500 sm:mr-5 sm:h-16 sm:w-16">
-            CR
-          </div>
-          <div className="flex min-w-0 flex-col justify-between">
-            <p className="line-clamp-1 text-sm font-semibold text-slate-700 sm:text-base">
-              {listing.title}
-            </p>
-            <p className="text-xs whitespace-nowrap text-slate-500 md:text-sm">
-              CKB Rewards
-            </p>
-            <div className="mt-px flex flex-wrap items-center gap-1 sm:gap-2">
-              <p className="hidden text-xs font-medium text-gray-500 sm:flex">
-                {typeLabel(listing.type)}
-              </p>
-              <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
-              <p className="text-[10px] whitespace-nowrap text-gray-500 sm:text-xs">
+      
+      <div className="relative z-10 flex flex-1 items-start gap-4 pointer-events-none">
+        <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background text-sm font-bold text-muted ring-1 ring-inset ring-border sm:flex">
+          CKB
+        </div>
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <h3 className="line-clamp-1 text-base font-bold text-foreground transition-colors group-hover:text-accent sm:text-lg">
+            {listing.title}
+          </h3>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-muted">
+              {typeLabel(listing.type)}
+            </span>
+
+            {featured && (
+              <>
+                <span className="hidden text-border sm:inline">•</span>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase ${
+                    listing.priority === "urgent"
+                      ? "bg-danger/10 text-danger"
+                      : "bg-accent/10 text-accent"
+                  }`}
+                >
+                  {listing.priority === "urgent" ? "Urgent" : "High"}
+                </span>
+              </>
+            )}
+
+            {listing.forumThreadUrl && (
+              <>
+                <span className="hidden text-border sm:inline">•</span>
+                <a
+                  href={listing.forumThreadUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pointer-events-auto rounded-md bg-background px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-500 ring-1 ring-inset ring-border transition-colors hover:bg-surface-hover hover:text-blue-600"
+                >
+                  Forum Link
+                </a>
+              </>
+            )}
+
+            {typeof submissions === "number" && submissions > 0 && (
+              <>
+                <span className="hidden text-border sm:inline">•</span>
+                <span className="text-xs font-medium text-muted">
+                  {submissions} Submissions
+                </span>
+              </>
+            )}
+
+            <span className="hidden text-border sm:inline">•</span>
+            <div className="flex items-center gap-1.5">
+              {isOpen(listing) && (
+                <span className="h-2 w-2 rounded-full bg-accent" />
+              )}
+              <span className="text-xs font-medium text-muted">
                 {formatDeadline(listing.deadline)}
-              </p>
-              {typeof submissions === "number" && submissions > 0 ? (
-                <>
-                  <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
-                  <p className="hidden text-xs text-gray-500 sm:flex">
-                    {submissions}
-                  </p>
-                </>
-              ) : null}
-              {featured ? (
-                <p className={`hidden text-xs font-semibold sm:flex ${listing.priority === 'urgent' ? 'text-red-500' : 'text-featured'}`}>
-                  {listing.priority === 'urgent' ? 'URGENT' : 'FEATURED'}
-                </p>
-              ) : null}
-              {listing.forumThreadUrl ? (
-                <>
-                  <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
-                  <a
-                    href={listing.forumThreadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hidden text-xs text-blue-500 hover:underline sm:flex pointer-events-auto"
-                  >
-                    Forum Link
-                  </a>
-                </>
-              ) : null}
-              {isOpen(listing) ? (
-                <span className="mx-1 h-2 w-2 rounded-full bg-accent sm:mx-0" />
-              ) : null}
+              </span>
             </div>
           </div>
         </div>
-        <div className="ml-3 hidden shrink-0 items-baseline gap-1 sm:flex">
-          <span className="text-xs font-semibold whitespace-nowrap text-slate-600 sm:text-base">
-            {listing.rewardUsd.toLocaleString()}
-          </span>
-          <span className="text-xs font-medium text-gray-400 sm:text-base">
-            USD
-          </span>
-        </div>
+      </div>
+
+      <div className="relative z-10 flex shrink-0 items-baseline gap-1 pl-12 pointer-events-none sm:flex-col sm:items-end sm:justify-center sm:pl-0">
+        <span className="text-lg font-extrabold text-foreground sm:text-xl">
+          {listing.rewardUsd.toLocaleString()}
+        </span>
+        <span className="text-xs font-semibold text-muted">USD</span>
       </div>
     </div>
   );
