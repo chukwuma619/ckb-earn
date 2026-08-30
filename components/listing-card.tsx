@@ -19,16 +19,18 @@ export function ListingCard({
   listing: Listing;
   submissions?: number;
 }) {
-  const featured = listing.priority === "high" && isOpen(listing);
+  const featured = listing.priority === "urgent" || (listing.priority === "high" && isOpen(listing));
 
   return (
-    <Link
-      href={`/bounties/${listing.slug}`}
-      className={`block w-full rounded-md px-2 py-4 no-underline hover:bg-gray-100 sm:px-4 ${
+    <div
+      className={`relative block w-full rounded-md px-2 py-4 no-underline hover:bg-gray-100 sm:px-4 ${
         featured ? "bg-featured-bg" : ""
       }`}
     >
-      <div className="flex w-full items-center justify-between">
+      <Link href={`/bounties/${listing.slug}`} className="absolute inset-0 z-0">
+        <span className="sr-only">View {listing.title}</span>
+      </Link>
+      <div className="relative z-10 flex w-full items-center justify-between pointer-events-none">
         <div className="flex w-full min-w-0">
           <div className="mr-3 grid h-14 w-14 shrink-0 place-items-center rounded-md bg-slate-100 text-xs font-semibold text-slate-500 sm:mr-5 sm:h-16 sm:w-16">
             CR
@@ -57,9 +59,22 @@ export function ListingCard({
                 </>
               ) : null}
               {featured ? (
-                <p className="hidden text-xs font-semibold text-featured sm:flex">
-                  FEATURED
+                <p className={`hidden text-xs font-semibold sm:flex ${listing.priority === 'urgent' ? 'text-red-500' : 'text-featured'}`}>
+                  {listing.priority === 'urgent' ? 'URGENT' : 'FEATURED'}
                 </p>
+              ) : null}
+              {listing.forumThreadUrl ? (
+                <>
+                  <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
+                  <a
+                    href={listing.forumThreadUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hidden text-xs text-blue-500 hover:underline sm:flex pointer-events-auto"
+                  >
+                    Forum Link
+                  </a>
+                </>
               ) : null}
               {isOpen(listing) ? (
                 <span className="mx-1 h-2 w-2 rounded-full bg-accent sm:mx-0" />
@@ -76,6 +91,6 @@ export function ListingCard({
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

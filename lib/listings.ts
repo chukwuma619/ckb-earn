@@ -4,6 +4,7 @@ import {
   listings,
   submissions,
   type ListingCategory,
+  type ListingPriority,
   type ListingStatus,
   type ListingType,
 } from "@/lib/db/schema";
@@ -20,6 +21,7 @@ export function slugify(value: string) {
 export async function listPublicListings(filters: {
   category?: ListingCategory | "all";
   type?: ListingType | "all";
+  priority?: ListingPriority | "all";
   query?: string;
 }) {
   const db = getDb();
@@ -31,6 +33,10 @@ export async function listPublicListings(filters: {
 
   if (filters.type && filters.type !== "all") {
     conditions.push(eq(listings.type, filters.type));
+  }
+
+  if (filters.priority && filters.priority !== "all") {
+    conditions.push(eq(listings.priority, filters.priority));
   }
 
   if (filters.query?.trim()) {

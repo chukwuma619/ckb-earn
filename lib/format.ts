@@ -44,14 +44,16 @@ export function categoryLabel(category: ListingCategory) {
   switch (category) {
     case "content":
       return "Content";
-    case "design":
-      return "Design";
-    case "development":
-      return "Development";
-    case "community":
-      return "Community";
-    case "other":
-      return "Other";
+    case "build":
+      return "Build";
+    case "growth":
+      return "Growth";
+    case "pioneer":
+      return "Pioneer";
+    case "leadership":
+      return "Leadership";
+    case "dao":
+      return "DAO";
     default: {
       const _exhaustive: never = category;
       return _exhaustive;
@@ -63,8 +65,12 @@ export function typeLabel(type: ListingType) {
   switch (type) {
     case "bounty":
       return "Bounty";
-    case "project":
-      return "Project";
+    case "permanent":
+      return "Permanent";
+    case "spark":
+      return "Spark";
+    case "grant":
+      return "Grant";
     default: {
       const _exhaustive: never = type;
       return _exhaustive;
@@ -93,12 +99,12 @@ export function statusLabel(status: ListingStatus) {
 
 export function priorityLabel(priority: ListingPriority) {
   switch (priority) {
-    case "low":
-      return "Low";
-    case "medium":
-      return "Medium";
+    case "standard":
+      return "Standard";
     case "high":
       return "High";
+    case "urgent":
+      return "Urgent";
     default: {
       const _exhaustive: never = priority;
       return _exhaustive;

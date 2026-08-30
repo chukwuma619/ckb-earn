@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ListingCard } from "@/components/listing-card";
 import { ListingFilters } from "@/components/listing-filters";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { listingCategories, listingTypes } from "@/lib/db/schema";
-import type { ListingCategory, ListingType } from "@/lib/db/schema";
+import { listingCategories, listingTypes, listingPriorities } from "@/lib/db/schema";
+import type { ListingCategory, ListingType, ListingPriority } from "@/lib/db/schema";
 import { countSubmissions, listPublicListings } from "@/lib/listings";
 
 export const dynamic = "force-dynamic";
@@ -26,16 +26,26 @@ function asType(value?: string): ListingType | "all" | undefined {
     : undefined;
 }
 
+function asPriority(value?: string): ListingPriority | "all" | undefined {
+  if (!value || value === "all") {
+    return value === "all" ? "all" : undefined;
+  }
+  return (listingPriorities as readonly string[]).includes(value)
+    ? (value as ListingPriority)
+    : undefined;
+}
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; type?: string; priority?: string }>;
 }) {
   const params = await searchParams;
   const { user } = await getCurrentProfile();
   const listings = await listPublicListings({
     category: asCategory(params.category),
     type: asType(params.type),
+    priority: asPriority(params.priority),
     query: params.q,
   });
   const counts = await Promise.all(
@@ -45,20 +55,17 @@ export default async function Home({
   return (
     <main className="mx-auto w-full max-w-[70rem] px-3 py-4 sm:px-4">
       <section className="grid gap-3 md:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="relative overflow-hidden rounded-lg bg-[#1b1638] px-5 py-6 text-white md:px-10 md:py-10">
+        <div className="relative overflow-hidden rounded-lg bg-black px-5 py-6 text-white md:px-10 md:py-10 border border-slate-200">
           <h1 className="relative z-10 text-2xl leading-[120%] font-bold md:text-[28px]">
-            Find Your Next High
-            <br />
-            Paying CKB Gig
+            Nervos Community Catalyst
           </h1>
           <p className="relative z-10 mt-2.5 max-w-[30rem] text-sm leading-[130%] text-white/90 md:mt-4 md:text-lg">
-            Participate in bounties or apply to freelance gigs from Nervos
-            teams, all with a single profile.
+            Community Keeps Building. Discover Bounties, Grants, and Spark mini-grants to build the future of CKB.
           </p>
           <div className="relative z-10 mt-6">
             <Link
               href={user ? "/dashboard" : "/auth/sign-up"}
-              className="btn inline-flex rounded-md bg-white px-9 py-3 text-sm font-medium text-[#0f172a] hover:bg-emerald-50"
+              className="btn inline-flex rounded-md bg-[#14E082] px-9 py-3 text-sm font-bold text-black hover:bg-[#00CC9B]"
             >
               {user ? "Dashboard" : "Sign Up"}
             </Link>
@@ -85,6 +92,7 @@ export default async function Home({
         <ListingFilters
           category={params.category}
           type={params.type}
+          priority={params.priority}
           query={params.q}
         />
         <div className="mt-2">

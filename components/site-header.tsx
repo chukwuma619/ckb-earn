@@ -10,25 +10,28 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-14 w-full max-w-[70rem] items-center justify-between px-3 sm:px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded bg-brand text-[11px] font-bold text-white">
-              E
+            <span className="grid h-7 w-7 place-items-center rounded bg-black text-[11px] font-bold text-[#14E082]">
+              C
             </span>
-            <span className="text-sm font-semibold text-slate-800">
-              CKB Earn
+            <span className="text-sm font-bold text-black">
+              CKB Bounty Board
             </span>
           </Link>
           <nav className="hidden items-center gap-5 text-sm font-medium text-slate-500 md:flex">
-            <Link href="/" className="hover:text-slate-800">
+            <Link href="/" className="hover:text-black">
               Bounties
             </Link>
-            <Link href="/?type=project" className="hover:text-slate-800">
-              Projects
+            <Link href="/?type=grant" className="hover:text-black">
+              Grants
             </Link>
-            <Link href="/dashboard" className="hover:text-slate-800">
+            <Link href="/?type=spark" className="hover:text-black">
+              Spark
+            </Link>
+            <Link href="/dashboard" className="hover:text-black">
               Dashboard
             </Link>
             {profile?.isAdmin ? (
-              <Link href="/admin" className="hover:text-slate-800">
+              <Link href="/admin" className="hover:text-black">
                 Admin
               </Link>
             ) : null}

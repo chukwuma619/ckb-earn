@@ -12,13 +12,14 @@ import {
 
 export const listingCategories = [
   "content",
-  "design",
-  "development",
-  "community",
-  "other",
+  "build",
+  "growth",
+  "pioneer",
+  "leadership",
+  "dao",
 ] as const;
 
-export const listingTypes = ["bounty", "project"] as const;
+export const listingTypes = ["bounty", "permanent", "spark", "grant"] as const;
 
 export const listingStatuses = [
   "draft",
@@ -28,7 +29,7 @@ export const listingStatuses = [
   "closed",
 ] as const;
 
-export const listingPriorities = ["low", "medium", "high"] as const;
+export const listingPriorities = ["standard", "high", "urgent"] as const;
 
 export const submissionStatuses = [
   "pending",
@@ -54,6 +55,7 @@ export const profiles = pgTable(
     twitter: text("twitter").notNull().default(""),
     skills: text("skills").notNull().default(""),
     isAdmin: boolean("is_admin").notNull().default(false),
+    role: text("role").notNull().default("member"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -78,7 +80,9 @@ export const listings = pgTable(
     priority: text("priority")
       .notNull()
       .$type<ListingPriority>()
-      .default("medium"),
+      .default("standard"),
+    forumThreadUrl: text("forum_thread_url"),
+    isMilestoneBased: boolean("is_milestone_based").notNull().default(false),
     rewardUsd: integer("reward_usd").notNull(),
     rewardLabel: text("reward_label").notNull(),
     winnerCount: integer("winner_count").notNull().default(1),
@@ -113,6 +117,8 @@ export const submissions = pgTable(
       .notNull()
       .references(() => profiles.userId, { onDelete: "cascade" }),
     link: text("link").notNull(),
+    forumPostUrl: text("forum_post_url"),
+    milestoneNumber: integer("milestone_number"),
     notes: text("notes").notNull().default(""),
     status: text("status")
       .notNull()

@@ -9,20 +9,37 @@ const seeds: Array<{
   requirements: string;
   category: ListingCategory;
   type: ListingType;
-  priority: "low" | "medium" | "high";
+  priority: "standard" | "high" | "urgent";
   rewardUsd: number;
   rewardLabel: string;
   winnerCount: number;
   days: number;
   tags: string[];
+  forumThreadUrl?: string;
+  isMilestoneBased?: boolean;
 }> = [
   {
-    slug: "ckb-explainer-thread",
-    title: "Write a CKB explainer thread for newcomers",
+    slug: "meme-factory",
+    title: "Meme factory!",
     description:
-      "Write a clear X thread that explains what CKB is, why cells matter, and why someone should care this year. Aim it at people who already understand Bitcoin or Ethereum.",
+      "Create original memes that are actually funny and specific to CKB, Fiber, or DAO life. Low-effort templates without a CKB punchline will be skipped.",
+    requirements: "Image or post link. Say where you published it.",
+    category: "growth",
+    type: "bounty",
+    priority: "standard",
+    rewardUsd: 50,
+    rewardLabel: "$50 in CKB",
+    winnerCount: 10,
+    days: 14,
+    tags: ["memes", "growth"],
+  },
+  {
+    slug: "write-article-new-ckbuilders",
+    title: "Write an article about new CKBuilders",
+    description:
+      "Write a clear article that explains what new builders are creating on CKB, why it matters, and how others can get involved.",
     requirements:
-      "Public thread link, 8–15 posts, and a short note on the angle you took.",
+      "Public article link, at least 800 words, and a short note on the angle you took.",
     category: "content",
     type: "bounty",
     priority: "high",
@@ -30,84 +47,58 @@ const seeds: Array<{
     rewardLabel: "$150 in CKB",
     winnerCount: 3,
     days: 10,
-    tags: ["writing", "onboarding"],
+    tags: ["writing", "builders"],
   },
   {
-    slug: "promotional-ckb-graphics",
-    title: "Create promotional CKB graphics",
+    slug: "spark-milestone-proposals",
+    title: "Spark Milestone Proposals",
     description:
-      "Design a small set of graphics the community can reuse: one square post, one landscape banner, and one story-size asset. Keep it on-brand and usable without extra editing.",
-    requirements: "Figma or downloadable PNG/SVG links for all three sizes.",
-    category: "design",
-    type: "bounty",
-    priority: "medium",
-    rewardUsd: 200,
-    rewardLabel: "$200 in CKB",
-    winnerCount: 2,
-    days: 12,
-    tags: ["graphics", "brand"],
-  },
-  {
-    slug: "refer-external-team",
-    title: "Refer an external team to build on CKB",
-    description:
-      "Introduce a team that is not already in the CKB community. The reward covers the time spent building rapport and making a real introduction to the Community DAO.",
+      "Submit a proposal for a Spark mini-grant. This is for small, milestone-based projects that benefit the CKB ecosystem.",
     requirements:
-      "Team name, contact, what they want to build, and proof of the introduction.",
-    category: "community",
-    type: "bounty",
-    priority: "high",
-    rewardUsd: 300,
-    rewardLabel: "$300 in CKB",
+      "A detailed proposal including milestones, budget, and expected impact.",
+    category: "build",
+    type: "spark",
+    priority: "standard",
+    rewardUsd: 1000,
+    rewardLabel: "Up to $1000 in CKB",
     winnerCount: 5,
     days: 30,
-    tags: ["referrals"],
+    tags: ["spark", "grants", "milestones"],
+    forumThreadUrl: "https://talk.nervos.org/t/spark-mini-grants/1234",
+    isMilestoneBased: true,
   },
   {
-    slug: "meme-factory",
-    title: "CKB meme factory",
+    slug: "permanent-bounty-translations",
+    title: "Permanent Translation Bounty",
     description:
-      "Make original memes that are actually funny and specific to CKB, Fiber, or DAO life. Low-effort templates without a CKB punchline will be skipped.",
-    requirements: "Image or post link. Say where you published it.",
-    category: "other",
-    type: "bounty",
-    priority: "low",
-    rewardUsd: 50,
-    rewardLabel: "$50 in CKB",
-    winnerCount: 10,
-    days: 14,
-    tags: ["memes"],
-  },
-  {
-    slug: "weekly-ckb-digest",
-    title: "Ship a weekly CKB ecosystem digest",
-    description:
-      "A readable weekly recap: launches, DAO votes, Fiber news, and builder updates. This is a project — apply with a sample and your distribution plan.",
-    requirements: "Sample digest and where you will publish for 4 weeks.",
+      "Translate CKB documentation, articles, and announcements into other languages. This is a recurring bounty.",
+    requirements:
+      "Link to the translated content and the original source.",
     category: "content",
-    type: "project",
-    priority: "medium",
-    rewardUsd: 250,
-    rewardLabel: "$200–$250 in CKB",
-    winnerCount: 1,
-    days: 21,
-    tags: ["writing"],
+    type: "permanent",
+    priority: "standard",
+    rewardUsd: 100,
+    rewardLabel: "$100 in CKB per translation",
+    winnerCount: 20,
+    days: 365,
+    tags: ["translation", "recurring"],
   },
   {
-    slug: "fiber-getting-started-guide",
-    title: "Write a Fiber getting-started guide",
+    slug: "urgent-bug-fix-fiber",
+    title: "Urgent: Fix critical bug in Fiber",
     description:
-      "A practical guide that takes someone from zero to a working Fiber setup. Include commands, failure points, and a short “you’re done when…” checklist.",
-    requirements: "Public doc or repo README. Must be reproducible.",
-    category: "development",
+      "Identify and fix a critical bug in the Fiber network implementation.",
+    requirements:
+      "PR merged into the main repository.",
+    category: "build",
     type: "bounty",
-    priority: "high",
-    rewardUsd: 300,
-    rewardLabel: "$300 in CKB",
-    winnerCount: 2,
-    days: 16,
-    tags: ["fiber", "docs"],
-  },
+    priority: "urgent",
+    rewardUsd: 2000,
+    rewardLabel: "$2000 in CKB",
+    winnerCount: 1,
+    days: 5,
+    tags: ["bug", "fiber", "urgent"],
+  }
 ];
 
 async function main() {
@@ -133,6 +124,8 @@ async function main() {
       winnerCount: seed.winnerCount,
       deadline: new Date(Date.now() + seed.days * 86_400_000),
       tags: seed.tags,
+      forumThreadUrl: seed.forumThreadUrl || null,
+      isMilestoneBased: seed.isMilestoneBased || false,
       createdBy: "system",
       updatedAt: new Date(),
     };
