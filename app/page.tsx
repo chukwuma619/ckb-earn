@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { ListingCard } from "@/components/listing-card";
 import { ListingFilters } from "@/components/listing-filters";
-import { countSubmissions, listPublicListings } from "@/lib/listings";
-import type { ListingCategory, ListingType } from "@/lib/db/schema";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { listingCategories, listingTypes } from "@/lib/db/schema";
+import type { ListingCategory, ListingType } from "@/lib/db/schema";
+import { countSubmissions, listPublicListings } from "@/lib/listings";
 
 export const dynamic = "force-dynamic";
 
@@ -30,68 +32,76 @@ export default async function Home({
   searchParams: Promise<{ q?: string; category?: string; type?: string }>;
 }) {
   const params = await searchParams;
-  const category = asCategory(params.category);
-  const type = asType(params.type);
+  const { user } = await getCurrentProfile();
   const listings = await listPublicListings({
-    category,
-    type,
+    category: asCategory(params.category),
+    type: asType(params.type),
     query: params.q,
   });
-
   const counts = await Promise.all(
     listings.map((listing) => countSubmissions(listing.id)),
   );
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      <section className="mb-10 grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-        <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-            Community Keeps Building
-          </p>
-          <h1 className="max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
-            Find your next CKB bounty.
+    <main className="mx-auto w-full max-w-[70rem] px-3 py-4 sm:px-4">
+      <section className="grid gap-3 md:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="relative overflow-hidden rounded-lg bg-[#1b1638] px-5 py-6 text-white md:px-10 md:py-10">
+          <h1 className="relative z-10 text-2xl leading-[120%] font-bold md:text-[28px]">
+            Find Your Next High
+            <br />
+            Paying CKB Gig
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-7 text-muted">
-            Write, design, refer projects, and ship for Nervos. One profile.
-            Paid in CKB. No more hunting through Notion.
+          <p className="relative z-10 mt-2.5 max-w-[30rem] text-sm leading-[130%] text-white/90 md:mt-4 md:text-lg">
+            Participate in bounties or apply to freelance gigs from Nervos
+            teams, all with a single profile.
           </p>
+          <div className="relative z-10 mt-6">
+            <Link
+              href={user ? "/dashboard" : "/auth/sign-up"}
+              className="btn inline-flex rounded-md bg-white px-9 py-3 text-sm font-medium text-[#0f172a] hover:bg-emerald-50"
+            >
+              {user ? "Dashboard" : "Sign Up"}
+            </Link>
+          </div>
         </div>
-        <div className="rounded-2xl border border-border bg-surface p-5">
-          <p className="text-sm font-medium">Become a sponsor</p>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Post a bounty or project and reach CKB builders, writers, and
-            designers from one dashboard.
+        <aside className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+          <p className="text-sm font-semibold text-slate-800">
+            Become a Sponsor
           </p>
-          <a
-            href="/admin/bounties/new"
-            className="mt-4 inline-flex rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background"
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Reach CKB talent in a few clicks. Get writing, design, and
+            development done for the ecosystem.
+          </p>
+          <Link
+            href={user ? "/admin/bounties/new" : "/auth/sign-in"}
+            className="btn mt-4 inline-flex rounded-md bg-brand px-4 py-2 text-sm font-medium text-white"
           >
-            Post a listing
-          </a>
-        </div>
+            Get Started
+          </Link>
+        </aside>
       </section>
 
-      <ListingFilters
-        category={params.category}
-        type={params.type}
-        query={params.q}
-      />
-
-      <section className="mt-8 grid gap-4">
-        {listings.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border px-6 py-16 text-center text-muted">
-            No open listings match those filters yet.
-          </div>
-        ) : (
-          listings.map((listing, index) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              submissions={counts[index]}
-            />
-          ))
-        )}
+      <section className="mt-8">
+        <ListingFilters
+          category={params.category}
+          type={params.type}
+          query={params.q}
+        />
+        <div className="mt-2">
+          {listings.length === 0 ? (
+            <p className="py-16 text-center text-sm text-slate-500">
+              No listings found
+            </p>
+          ) : (
+            listings.map((listing, index) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                submissions={counts[index]}
+              />
+            ))
+          )}
+        </div>
       </section>
     </main>
   );

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentProfile } from "@/lib/auth/session";
 import { submitToListingAction } from "@/lib/actions";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { countSubmissions, getListingBySlug } from "@/lib/listings";
 import { getUserSubmission } from "@/lib/submissions";
 import {
@@ -31,35 +31,38 @@ export default async function BountyPage({
     countSubmissions(listing.id),
     user ? getUserSubmission(listing.id, user.id) : Promise.resolve(null),
   ]);
-
   const open = listing.status === "open";
 
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[1.4fr_0.8fr]">
+    <main className="mx-auto grid w-full max-w-[70rem] gap-8 px-3 py-6 sm:px-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
       <article>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {typeLabel(listing.type)} · {categoryLabel(listing.category)}
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-          {listing.title}
-        </h1>
-        <div className="mt-4 flex flex-wrap gap-3 text-sm text-muted">
-          <span>{statusLabel(listing.status)}</span>
-          <span>{formatDeadline(listing.deadline)}</span>
-          <span>
-            {submissions} submission{submissions === 1 ? "" : "s"}
-          </span>
-          <span>
-            {listing.winnerCount} winner{listing.winnerCount === 1 ? "" : "s"}
-          </span>
+        <div className="flex items-start gap-4">
+          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-md bg-slate-100 text-sm font-semibold text-slate-500">
+            CR
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-800 md:text-2xl">
+              {listing.title}
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              CKB Rewards · {typeLabel(listing.type)} ·{" "}
+              {categoryLabel(listing.category)}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              {statusLabel(listing.status)} · {formatDeadline(listing.deadline)}{" "}
+              · {submissions} submission{submissions === 1 ? "" : "s"}
+            </p>
+          </div>
         </div>
-        <div className="mt-8 whitespace-pre-wrap text-base leading-7 text-foreground/90">
+        <div className="mt-8 whitespace-pre-wrap text-sm leading-7 text-slate-700">
           {listing.description}
         </div>
         {listing.requirements ? (
-          <section className="mt-10">
-            <h2 className="text-lg font-semibold">What to submit</h2>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
+          <section className="mt-8">
+            <h2 className="text-sm font-semibold text-slate-800">
+              Skills Needed
+            </h2>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-500">
               {listing.requirements}
             </p>
           </section>
@@ -67,59 +70,62 @@ export default async function BountyPage({
       </article>
 
       <aside className="space-y-4">
-        <div className="rounded-2xl border border-border bg-surface p-5">
-          <p className="text-xs uppercase tracking-wide text-muted">Reward</p>
-          <p className="mt-2 text-3xl font-semibold text-gold">
-            {listing.rewardLabel}
+        <div className="rounded-md border border-slate-200 p-4">
+          <p className="text-xs text-slate-500">Prize</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-800">
+            {listing.rewardUsd.toLocaleString()}{" "}
+            <span className="text-base font-medium text-gray-400">USD</span>
           </p>
-          <p className="mt-1 text-sm text-muted">{formatUsd(listing.rewardUsd)}</p>
+          <p className="mt-1 text-sm text-slate-500">{listing.rewardLabel}</p>
+          <p className="mt-3 text-xs text-slate-400">
+            {listing.winnerCount} winner{listing.winnerCount === 1 ? "" : "s"} ·{" "}
+            {formatUsd(listing.rewardUsd)}
+          </p>
         </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-5">
-          <h2 className="text-base font-semibold">Submit work</h2>
+        <div className="rounded-md border border-slate-200 p-4">
+          <h2 className="text-sm font-semibold text-slate-800">Submit</h2>
           {!user ? (
-            <p className="mt-3 text-sm leading-6 text-muted">
-              <Link href="/auth/sign-in" className="text-accent">
-                Sign in
+            <p className="mt-3 text-sm leading-6 text-slate-500">
+              <Link href="/auth/sign-in" className="font-medium text-slate-800">
+                Login
               </Link>{" "}
-              to submit. Add your CKB address on your profile before you win.
+              to submit. Add your CKB address on your profile before payout.
             </p>
           ) : !open ? (
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 text-sm text-slate-500">
               This listing is no longer accepting submissions.
             </p>
           ) : (
             <form action={submitToListingAction} className="mt-4 space-y-3">
               <input type="hidden" name="listingId" value={listing.id} />
-              <label className="block text-xs text-muted">
+              <label className="block text-xs text-slate-500">
                 Work link
                 <input
                   name="link"
                   required
                   defaultValue={existing?.link}
-                  placeholder="https://…"
-                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                  placeholder="https://"
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
                 />
               </label>
-              <label className="block text-xs text-muted">
+              <label className="block text-xs text-slate-500">
                 Notes
                 <textarea
                   name="notes"
                   rows={4}
                   defaultValue={existing?.notes}
-                  placeholder="What you shipped, and anything reviewers should know."
-                  className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
                 />
               </label>
               <button
                 type="submit"
-                className="w-full rounded-xl bg-accent py-2.5 text-sm font-semibold text-[#04110b]"
+                className="btn w-full rounded-md bg-brand py-2 text-sm font-medium text-white"
               >
-                {existing ? "Update submission" : "Submit work"}
+                {existing ? "Update submission" : "Submit"}
               </button>
               {existing ? (
-                <p className="text-xs text-muted">
-                  Current status: {submissionStatusLabel(existing.status)}
+                <p className="text-xs text-slate-400">
+                  {submissionStatusLabel(existing.status)}
                 </p>
               ) : null}
             </form>

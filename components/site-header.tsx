@@ -6,44 +6,54 @@ export async function SiteHeader() {
   const { user, profile } = await getCurrentProfile();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-sm font-black text-[#04110b]">
-            ₵
-          </span>
-          <span className="text-sm font-semibold tracking-tight">
-            CKB Earn
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-6 text-sm text-muted md:flex">
-          <Link href="/" className="hover:text-foreground">
-            Bounties
+    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+      <div className="mx-auto flex h-14 w-full max-w-[70rem] items-center justify-between px-3 sm:px-4">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="grid h-7 w-7 place-items-center rounded bg-brand text-[11px] font-bold text-white">
+              E
+            </span>
+            <span className="text-sm font-semibold text-slate-800">
+              CKB Earn
+            </span>
           </Link>
-          <Link href="/dashboard" className="hover:text-foreground">
-            Dashboard
-          </Link>
-          {profile?.isAdmin ? (
-            <Link href="/admin" className="hover:text-foreground">
-              Admin
+          <nav className="hidden items-center gap-5 text-sm font-medium text-slate-500 md:flex">
+            <Link href="/" className="hover:text-slate-800">
+              Bounties
             </Link>
-          ) : null}
-        </nav>
+            <Link href="/?type=project" className="hover:text-slate-800">
+              Projects
+            </Link>
+            <Link href="/dashboard" className="hover:text-slate-800">
+              Dashboard
+            </Link>
+            {profile?.isAdmin ? (
+              <Link href="/admin" className="hover:text-slate-800">
+                Admin
+              </Link>
+            ) : null}
+          </nav>
+        </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href={user ? "/admin/bounties/new" : "/auth/sign-in"}
+            className="hidden text-sm font-medium text-slate-500 hover:text-slate-800 sm:block"
+          >
+            Become a Sponsor
+          </Link>
           {user ? (
             <>
               <Link
                 href="/profile"
-                className="hidden text-sm text-muted hover:text-foreground sm:block"
+                className="hidden text-sm text-slate-500 hover:text-slate-800 sm:block"
               >
                 {profile?.name || user.name}
               </Link>
               <form action={signOutAction}>
                 <button
                   type="submit"
-                  className="rounded-full border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"
+                  className="rounded-md px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-100"
                 >
                   Sign out
                 </button>
@@ -53,15 +63,15 @@ export async function SiteHeader() {
             <>
               <Link
                 href="/auth/sign-in"
-                className="text-sm text-muted hover:text-foreground"
+                className="text-sm font-medium text-slate-500 hover:text-slate-800"
               >
-                Log in
+                Login
               </Link>
               <Link
                 href="/auth/sign-up"
-                className="rounded-full bg-accent px-3.5 py-1.5 text-sm font-semibold text-[#04110b]"
+                className="btn rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white"
               >
-                Sign up
+                Sign Up
               </Link>
             </>
           )}

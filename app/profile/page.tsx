@@ -11,61 +11,61 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight">Talent profile</h1>
-      <p className="mt-2 text-sm text-muted">
+    <main className="mx-auto w-full max-w-xl px-4 py-8">
+      <h1 className="text-xl font-semibold text-slate-800">Profile</h1>
+      <p className="mt-1 text-sm text-slate-500">
         Reviewers use this to pay you in CKB after you win.
       </p>
-      <form action={updateProfileAction} className="mt-8 space-y-4">
-        <label className="block text-xs text-muted">
+      <form action={updateProfileAction} className="mt-6 space-y-4">
+        <label className="block text-xs font-medium text-slate-500">
           Display name
           <input
             name="name"
             defaultValue={profile.name}
-            className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
         </label>
-        <label className="block text-xs text-muted">
+        <label className="block text-xs font-medium text-slate-500">
           CKB address
           <input
             name="ckbAddress"
             defaultValue={profile.ckbAddress}
             placeholder="ckt1… or ckb1…"
-            className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
         </label>
-        <label className="block text-xs text-muted">
+        <label className="block text-xs font-medium text-slate-500">
           X / Twitter
           <input
             name="twitter"
             defaultValue={profile.twitter}
             placeholder="@handle"
-            className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
         </label>
-        <label className="block text-xs text-muted">
+        <label className="block text-xs font-medium text-slate-500">
           Skills
           <input
             name="skills"
             defaultValue={profile.skills}
             placeholder="Writing, design, Rust, Fiber"
-            className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
         </label>
-        <label className="block text-xs text-muted">
+        <label className="block text-xs font-medium text-slate-500">
           Bio
           <textarea
             name="bio"
             rows={5}
             defaultValue={profile.bio}
-            className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
         </label>
         <button
           type="submit"
-          className="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-[#04110b]"
+          className="btn rounded-md bg-brand px-4 py-2 text-sm font-medium text-white"
         >
-          Save profile
+          Save
         </button>
       </form>
     </main>

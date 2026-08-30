@@ -1,11 +1,16 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/db/schema";
-import {
-  categoryLabel,
-  formatDeadline,
-  formatUsd,
-  typeLabel,
-} from "@/lib/format";
+import { formatDeadline, typeLabel } from "@/lib/format";
+
+function isOpen(listing: Listing) {
+  if (listing.status !== "open") {
+    return false;
+  }
+  if (!listing.deadline) {
+    return true;
+  }
+  return listing.deadline.getTime() > Date.now();
+}
 
 export function ListingCard({
   listing,
@@ -14,48 +19,62 @@ export function ListingCard({
   listing: Listing;
   submissions?: number;
 }) {
+  const featured = listing.priority === "high" && isOpen(listing);
+
   return (
     <Link
       href={`/bounties/${listing.slug}`}
-      className="group block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:bg-surface-2"
+      className={`block w-full rounded-md px-2 py-4 no-underline hover:bg-gray-100 sm:px-4 ${
+        featured ? "bg-featured-bg" : ""
+      }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-muted">
-            <span className="rounded-full bg-accent-dim px-2 py-0.5 text-accent">
-              {typeLabel(listing.type)}
-            </span>
-            <span>{categoryLabel(listing.category)}</span>
-            {listing.priority === "high" ? (
-              <span className="text-gold">High priority</span>
-            ) : null}
+      <div className="flex w-full items-center justify-between">
+        <div className="flex w-full min-w-0">
+          <div className="mr-3 grid h-14 w-14 shrink-0 place-items-center rounded-md bg-slate-100 text-xs font-semibold text-slate-500 sm:mr-5 sm:h-16 sm:w-16">
+            CR
           </div>
-          <h3 className="text-base font-semibold tracking-tight text-foreground group-hover:text-accent">
-            {listing.title}
-          </h3>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
-            {listing.description}
-          </p>
-        </div>
-        <div className="shrink-0 text-right">
-          <div className="text-lg font-semibold text-gold">
-            {listing.rewardLabel}
+          <div className="flex min-w-0 flex-col justify-between">
+            <p className="line-clamp-1 text-sm font-semibold text-slate-700 sm:text-base">
+              {listing.title}
+            </p>
+            <p className="text-xs whitespace-nowrap text-slate-500 md:text-sm">
+              CKB Rewards
+            </p>
+            <div className="mt-px flex flex-wrap items-center gap-1 sm:gap-2">
+              <p className="hidden text-xs font-medium text-gray-500 sm:flex">
+                {typeLabel(listing.type)}
+              </p>
+              <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
+              <p className="text-[10px] whitespace-nowrap text-gray-500 sm:text-xs">
+                {formatDeadline(listing.deadline)}
+              </p>
+              {typeof submissions === "number" && submissions > 0 ? (
+                <>
+                  <p className="hidden text-slate-300 sm:flex sm:text-xs">|</p>
+                  <p className="hidden text-xs text-gray-500 sm:flex">
+                    {submissions}
+                  </p>
+                </>
+              ) : null}
+              {featured ? (
+                <p className="hidden text-xs font-semibold text-featured sm:flex">
+                  FEATURED
+                </p>
+              ) : null}
+              {isOpen(listing) ? (
+                <span className="mx-1 h-2 w-2 rounded-full bg-accent sm:mx-0" />
+              ) : null}
+            </div>
           </div>
-          <div className="text-xs text-muted">{formatUsd(listing.rewardUsd)}</div>
         </div>
-      </div>
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted">
-        <span>{formatDeadline(listing.deadline)}</span>
-        {typeof submissions === "number" ? (
-          <span>
-            {submissions} submission{submissions === 1 ? "" : "s"}
+        <div className="ml-3 hidden shrink-0 items-baseline gap-1 sm:flex">
+          <span className="text-xs font-semibold whitespace-nowrap text-slate-600 sm:text-base">
+            {listing.rewardUsd.toLocaleString()}
           </span>
-        ) : null}
-        {listing.tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="rounded-full border border-border px-2 py-0.5">
-            {tag}
+          <span className="text-xs font-medium text-gray-400 sm:text-base">
+            USD
           </span>
-        ))}
+        </div>
       </div>
     </Link>
   );
