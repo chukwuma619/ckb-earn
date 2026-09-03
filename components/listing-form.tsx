@@ -7,6 +7,7 @@ import {
 } from "@/lib/types";
 import { categoryLabel, statusLabel, typeLabel } from "@/lib/format";
 import { redirect } from "next/navigation";
+import { SubmissionFormBuilder } from "@/components/submission-form-builder";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -36,23 +37,19 @@ export function ListingForm({ listing }: { listing?: Listing }) {
           <Input id="title" name="title" required defaultValue={listing?.title} />
         </Field>
         <Field>
-          <FieldLabel htmlFor="description">Description</FieldLabel>
+          <FieldLabel htmlFor="details">Details</FieldLabel>
           <Textarea
-            id="description"
-            name="description"
+            id="details"
+            name="details"
             required
-            rows={6}
-            defaultValue={listing?.description}
+            rows={12}
+            defaultValue={listing?.details}
+            placeholder="Write the full project details in Markdown..."
+            className="font-mono text-sm"
           />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="requirements">What to submit</FieldLabel>
-          <Textarea
-            id="requirements"
-            name="requirements"
-            rows={3}
-            defaultValue={listing?.requirements}
-          />
+          <p className="text-xs text-muted-foreground">
+            Supports Markdown: headings, lists, links, code blocks, and more.
+          </p>
         </Field>
         <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field>
@@ -101,31 +98,13 @@ export function ListingForm({ listing }: { listing?: Listing }) {
             </NativeSelect>
           </Field>
           <Field>
-            <FieldLabel htmlFor="rewardUsd">Reward USD</FieldLabel>
+            <FieldLabel htmlFor="rewardAmount">Reward amount (USD)</FieldLabel>
             <Input
-              id="rewardUsd"
-              name="rewardUsd"
+              id="rewardAmount"
+              name="rewardAmount"
               type="number"
               min="0"
-              defaultValue={listing?.rewardUsd ?? 100}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="rewardLabel">Reward label</FieldLabel>
-            <Input
-              id="rewardLabel"
-              name="rewardLabel"
-              defaultValue={listing?.rewardLabel ?? "$100 in CKB"}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="winnerCount">Winners</FieldLabel>
-            <Input
-              id="winnerCount"
-              name="winnerCount"
-              type="number"
-              min="1"
-              defaultValue={listing?.winnerCount ?? 1}
+              defaultValue={listing?.rewardAmount ?? 100}
             />
           </Field>
           <Field>
@@ -138,15 +117,9 @@ export function ListingForm({ listing }: { listing?: Listing }) {
             />
           </Field>
         </FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="tags">Tags</FieldLabel>
-          <Input
-            id="tags"
-            name="tags"
-            defaultValue={listing?.tags.join(", ")}
-            placeholder="writing, fiber"
-          />
-        </Field>
+
+        <SubmissionFormBuilder initialFields={listing?.formFields} />
+
         <Button type="submit">{listing ? "Save listing" : "Publish listing"}</Button>
       </FieldGroup>
     </form>

@@ -75,10 +75,6 @@ export function statusLabel(status: ListingStatus) {
       return "Draft";
     case "open":
       return "Open";
-    case "reviewing":
-      return "Reviewing";
-    case "awarded":
-      return "Awarded";
     case "closed":
       return "Closed";
     default: {

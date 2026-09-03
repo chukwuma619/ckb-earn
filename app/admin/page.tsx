@@ -55,7 +55,7 @@ export default async function AdminPage() {
                   {statusLabel(listing.status)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {listing.rewardUsd.toLocaleString()}{" "}
+                  {listing.rewardAmount.toLocaleString()}{" "}
                   <span className="text-muted-foreground">USD</span>
                 </TableCell>
               </TableRow>

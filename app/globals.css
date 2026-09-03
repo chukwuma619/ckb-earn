@@ -275,3 +275,122 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+.markdown-details > :first-child {
+  margin-top: 0;
+}
+
+.markdown-details > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-details h1,
+.markdown-details h2,
+.markdown-details h3,
+.markdown-details h4 {
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-details h1 {
+  font-size: 1.35rem;
+}
+
+.markdown-details h2 {
+  font-size: 1.15rem;
+}
+
+.markdown-details h3 {
+  font-size: 1rem;
+}
+
+.markdown-details p,
+.markdown-details ul,
+.markdown-details ol,
+.markdown-details blockquote,
+.markdown-details pre,
+.markdown-details table {
+  margin: 0.75rem 0;
+}
+
+.markdown-details ul,
+.markdown-details ol {
+  padding-left: 1.25rem;
+}
+
+.markdown-details ul {
+  list-style: disc;
+}
+
+.markdown-details ol {
+  list-style: decimal;
+}
+
+.markdown-details li + li {
+  margin-top: 0.25rem;
+}
+
+.markdown-details a {
+  color: var(--reactor);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-details strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.markdown-details blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.markdown-details code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: color-mix(in srgb, var(--muted) 80%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.markdown-details pre {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+  padding: 0.85rem 1rem;
+}
+
+.markdown-details pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.markdown-details table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.markdown-details th,
+.markdown-details td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.markdown-details th {
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-weight: 600;
+}
+
+.markdown-details hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}

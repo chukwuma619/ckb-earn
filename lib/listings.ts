@@ -34,7 +34,7 @@ export async function listPublicListings(filters: {
       !needle
         ? true
         : listing.title.toLowerCase().includes(needle) ||
-          listing.description.toLowerCase().includes(needle),
+          listing.details.toLowerCase().includes(needle),
     )
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }

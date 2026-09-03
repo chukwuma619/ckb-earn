@@ -7,6 +7,10 @@ import {
   requireUser,
 } from "@/lib/auth/session";
 import { getStore, newId } from "@/lib/data/store";
+import {
+  collectSubmissionAnswers,
+  parseFormFieldsJson,
+} from "@/lib/forms";
 import { slugify } from "@/lib/listings";
 import {
   listingCategories,
@@ -61,11 +65,9 @@ export async function updateProfileAction(formData: FormData) {
 export async function submitToListingAction(formData: FormData) {
   const { user } = await requireUser();
   const listingId = readString(formData, "listingId");
-  const link = readString(formData, "link");
-  const notes = readString(formData, "notes");
 
-  if (!listingId || !link) {
-    throw new Error("A listing and a submission link are required.");
+  if (!listingId) {
+    throw new Error("A listing is required.");
   }
 
   const store = getStore();
@@ -74,23 +76,21 @@ export async function submitToListingAction(formData: FormData) {
     throw new Error("This listing is not accepting submissions.");
   }
 
+  const answers = collectSubmissionAnswers(formData, listing.formFields);
+
   const existing = store.submissions.find(
     (submission) =>
       submission.listingId === listingId && submission.userId === user.id,
   );
 
   if (existing) {
-    existing.link = link;
-    existing.notes = notes;
+    existing.answers = answers;
   } else {
     store.submissions.push({
       id: newId("submission"),
       listingId,
       userId: user.id,
-      link,
-      forumPostUrl: null,
-      milestoneNumber: null,
-      notes,
+      answers,
       status: "pending",
       createdAt: new Date(),
       reviewedAt: null,
@@ -108,22 +108,16 @@ export async function upsertListingAction(formData: FormData) {
 
   const id = readString(formData, "id");
   const title = readString(formData, "title");
-  const description = readString(formData, "description");
-  const requirements = readString(formData, "requirements");
+  const details = readString(formData, "details");
   const category = readString(formData, "category");
   const type = readString(formData, "type");
   const status = readString(formData, "status") || "open";
-  const rewardUsd = Number(readString(formData, "rewardUsd") || "0");
-  const rewardLabel = readString(formData, "rewardLabel");
-  const winnerCount = Number(readString(formData, "winnerCount") || "1");
+  const rewardAmount = Number(readString(formData, "rewardAmount") || "0");
   const deadlineValue = readString(formData, "deadline");
-  const tags = readString(formData, "tags")
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
+  const formFields = parseFormFieldsJson(readString(formData, "formFields"));
 
-  if (!title || !description || !isCategory(category) || !isType(type)) {
-    throw new Error("Title, description, category, and type are required.");
+  if (!title || !details || !isCategory(category) || !isType(type)) {
+    throw new Error("Title, details, category, and type are required.");
   }
 
   if (!isStatus(status)) {
@@ -132,16 +126,13 @@ export async function upsertListingAction(formData: FormData) {
 
   const values = {
     title,
-    description,
-    requirements,
+    details,
     category,
     type,
     status,
-    rewardUsd: Number.isFinite(rewardUsd) ? rewardUsd : 0,
-    rewardLabel: rewardLabel || `$${rewardUsd} in CKB`,
-    winnerCount: Number.isFinite(winnerCount) ? winnerCount : 1,
+    rewardAmount: Number.isFinite(rewardAmount) ? rewardAmount : 0,
     deadline: deadlineValue ? new Date(deadlineValue) : null,
-    tags,
+    formFields,
     createdBy: user.id,
     updatedAt: new Date(),
   };
@@ -170,8 +161,6 @@ export async function upsertListingAction(formData: FormData) {
   const created = {
     id: newId("listing"),
     slug,
-    forumThreadUrl: null as string | null,
-    isMilestoneBased: false,
     createdAt: new Date(),
     ...values,
   };
@@ -203,8 +192,8 @@ export async function updateSubmissionStatusAction(formData: FormData) {
   current.reviewedAt = new Date();
 
   const listing = store.listings.find((row) => row.id === current.listingId);
-  if (listing && (status === "winner" || status === "paid")) {
-    listing.status = status === "paid" ? "awarded" : "reviewing";
+  if (listing && status === "paid") {
+    listing.status = "closed";
     listing.updatedAt = new Date();
   }
 

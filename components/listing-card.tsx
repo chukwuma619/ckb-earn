@@ -48,13 +48,6 @@ export function ListingCard({
             {typeLabel(listing.type)}
           </Badge>
           <Badge variant="outline">{categoryLabel(listing.category)}</Badge>
-          {listing.forumThreadUrl ? (
-            <Badge variant="outline" asChild>
-              <a href={listing.forumThreadUrl} target="_blank" rel="noreferrer">
-                Forum
-              </a>
-            </Badge>
-          ) : null}
           {typeof submissions === "number" && submissions > 0 ? (
             <span className="font-mono text-[0.7rem] uppercase tracking-wide">
               {submissions} submissions
@@ -67,7 +60,7 @@ export function ListingCard({
       </ItemContent>
       <ItemActions className="flex-col items-end">
         <span className="font-mono text-lg font-semibold tabular-nums tracking-tight">
-          ${listing.rewardUsd.toLocaleString()}
+          ${listing.rewardAmount.toLocaleString()}
         </span>
         <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted-foreground">
           USD

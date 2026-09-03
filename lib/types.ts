@@ -7,13 +7,7 @@ export const listingCategories = [
 
 export const listingTypes = ["bounty", "grant"] as const;
 
-export const listingStatuses = [
-  "draft",
-  "open",
-  "reviewing",
-  "awarded",
-  "closed",
-] as const;
+export const listingStatuses = ["draft", "open", "closed"] as const;
 
 export const submissionStatuses = [
   "pending",
@@ -22,10 +16,29 @@ export const submissionStatuses = [
   "paid",
 ] as const;
 
+export const formFieldTypes = [
+  "short_text",
+  "long_text",
+  "url",
+  "number",
+  "select",
+  "checkbox",
+] as const;
+
 export type ListingCategory = (typeof listingCategories)[number];
 export type ListingType = (typeof listingTypes)[number];
 export type ListingStatus = (typeof listingStatuses)[number];
 export type SubmissionStatus = (typeof submissionStatuses)[number];
+export type FormFieldType = (typeof formFieldTypes)[number];
+
+export type FormField = {
+  id: string;
+  type: FormFieldType;
+  label: string;
+  description: string;
+  required: boolean;
+  options: string[];
+};
 
 export type Profile = {
   userId: string;
@@ -45,18 +58,13 @@ export type Listing = {
   id: string;
   slug: string;
   title: string;
-  description: string;
-  requirements: string;
+  details: string;
   category: ListingCategory;
   type: ListingType;
   status: ListingStatus;
-  forumThreadUrl: string | null;
-  isMilestoneBased: boolean;
-  rewardUsd: number;
-  rewardLabel: string;
-  winnerCount: number;
+  rewardAmount: number;
   deadline: Date | null;
-  tags: string[];
+  formFields: FormField[];
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
@@ -66,10 +74,7 @@ export type Submission = {
   id: string;
   listingId: string;
   userId: string;
-  link: string;
-  forumPostUrl: string | null;
-  milestoneNumber: number | null;
-  notes: string;
+  answers: Record<string, string>;
   status: SubmissionStatus;
   createdAt: Date;
   reviewedAt: Date | null;

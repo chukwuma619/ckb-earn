@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { submitToListingAction } from "@/lib/actions";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { countSubmissions, getListingBySlug } from "@/lib/listings";
 import { getUserSubmission } from "@/lib/submissions";
@@ -9,12 +8,13 @@ import {
   formatDeadline,
   formatUsd,
   statusLabel,
-  submissionStatusLabel,
   typeLabel,
 } from "@/lib/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DynamicSubmissionForm } from "@/components/dynamic-submission-form";
+import { MarkdownDetails } from "@/components/markdown-details";
 import {
   Card,
   CardContent,
@@ -22,10 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 
 export const dynamic = "force-dynamic";
 
@@ -70,15 +67,7 @@ export default async function BountyPage({
           </div>
         </div>
         <Separator className="my-8" />
-        <div className="whitespace-pre-wrap text-sm leading-7">{listing.description}</div>
-        {listing.requirements ? (
-          <section className="mt-8">
-            <h2 className="text-sm font-semibold">Skills Needed</h2>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
-              {listing.requirements}
-            </p>
-          </section>
-        ) : null}
+        <MarkdownDetails content={listing.details} />
       </article>
 
       <aside className="space-y-4">
@@ -86,15 +75,13 @@ export default async function BountyPage({
           <CardHeader>
             <CardDescription>Prize</CardDescription>
             <CardTitle className="text-2xl">
-              {listing.rewardUsd.toLocaleString()}{" "}
+              {listing.rewardAmount.toLocaleString()}{" "}
               <span className="text-base font-medium text-muted-foreground">USD</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{listing.rewardLabel}</p>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {listing.winnerCount} winner{listing.winnerCount === 1 ? "" : "s"} ·{" "}
-              {formatUsd(listing.rewardUsd)}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {formatUsd(listing.rewardAmount)}
             </p>
           </CardContent>
         </Card>
@@ -114,32 +101,16 @@ export default async function BountyPage({
               <p className="text-sm text-muted-foreground">
                 This listing is no longer accepting submissions.
               </p>
+            ) : listing.formFields.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                This listing has no submission form yet.
+              </p>
             ) : (
-              <form action={submitToListingAction}>
-                <input type="hidden" name="listingId" value={listing.id} />
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="link">Work link</FieldLabel>
-                    <Input
-                      id="link"
-                      name="link"
-                      required
-                      defaultValue={existing?.link}
-                      placeholder="https://"
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="notes">Notes</FieldLabel>
-                    <Textarea id="notes" name="notes" rows={4} defaultValue={existing?.notes} />
-                  </Field>
-                  <Button type="submit">{existing ? "Update submission" : "Submit"}</Button>
-                  {existing ? (
-                    <p className="text-xs text-muted-foreground">
-                      {submissionStatusLabel(existing.status)}
-                    </p>
-                  ) : null}
-                </FieldGroup>
-              </form>
+              <DynamicSubmissionForm
+                listingId={listing.id}
+                fields={listing.formFields}
+                existing={existing}
+              />
             )}
           </CardContent>
         </Card>

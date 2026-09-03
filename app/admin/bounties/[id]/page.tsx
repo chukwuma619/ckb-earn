@@ -4,6 +4,7 @@ import { getListingById } from "@/lib/listings";
 import { listListingSubmissions } from "@/lib/submissions";
 import { ListingForm } from "@/components/listing-form";
 import { updateSubmissionStatusAction } from "@/lib/actions";
+import { answerDisplayValue } from "@/lib/forms";
 import { submissionStatusLabel } from "@/lib/format";
 import { submissionStatuses } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -58,12 +59,33 @@ export default async function EditListingPage({
                 {index > 0 ? <Separator className="mb-4" /> : null}
                 <p className="text-sm font-semibold">{talent.name}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{talent.email}</p>
-                <Button variant="link" className="mt-2 h-auto p-0" asChild>
-                  <a href={submission.link}>{submission.link}</a>
-                </Button>
-                {submission.notes ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{submission.notes}</p>
-                ) : null}
+                <dl className="mt-3 space-y-2">
+                  {listing.formFields.map((field) => {
+                    const value = submission.answers[field.id] ?? "";
+                    const display = answerDisplayValue(value);
+                    const isUrl =
+                      field.type === "url" && /^https?:\/\//i.test(value);
+
+                    return (
+                      <div key={field.id}>
+                        <dt className="text-xs font-medium text-muted-foreground">
+                          {field.label}
+                        </dt>
+                        <dd className="mt-0.5 text-sm">
+                          {isUrl ? (
+                            <Button variant="link" className="h-auto p-0" asChild>
+                              <a href={value} target="_blank" rel="noreferrer">
+                                {value}
+                              </a>
+                            </Button>
+                          ) : (
+                            display
+                          )}
+                        </dd>
+                      </div>
+                    );
+                  })}
+                </dl>
                 <form action={updateSubmissionStatusAction} className="mt-3">
                   <input type="hidden" name="submissionId" value={submission.id} />
                   <FieldGroup className="flex-row items-end gap-2">
