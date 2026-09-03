@@ -1,8 +1,10 @@
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/server";
-import { getDb } from "@/lib/db";
-import { profiles, type Profile } from "@/lib/db/schema";
+import { cookies } from "next/headers";
+import {
+  DEMO_AUTH_COOKIE,
+  DEMO_USER,
+  getStore,
+} from "@/lib/data/store";
+import type { Profile } from "@/lib/types";
 
 export type AuthUser = {
   id: string;
@@ -10,61 +12,44 @@ export type AuthUser = {
   name: string;
 };
 
-function readAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 export function isAdminEmail(email: string) {
-  const allowlist = readAdminEmails();
-  if (allowlist.length === 0) {
-    return true;
-  }
-
-  return allowlist.includes(email.toLowerCase());
+  return email.toLowerCase() === DEMO_USER.email.toLowerCase();
 }
 
 export async function getAuthUser(): Promise<AuthUser | null> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  const user = session?.user;
-  if (!user?.id || !user.email) {
+  const jar = await cookies();
+  if (jar.get(DEMO_AUTH_COOKIE)?.value !== "1") {
     return null;
   }
 
   return {
-    id: user.id,
-    email: user.email,
-    name: user.name || user.email.split("@")[0],
+    id: DEMO_USER.id,
+    email: DEMO_USER.email,
+    name: DEMO_USER.name,
   };
 }
 
 export async function ensureProfile(user: AuthUser): Promise<Profile> {
-  const db = getDb();
-  const existing = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.userId, user.id))
-    .limit(1);
-
-  if (existing[0]) {
-    return existing[0];
+  const store = getStore();
+  const existing = store.profiles.find((profile) => profile.userId === user.id);
+  if (existing) {
+    return existing;
   }
 
-  const [created] = await db
-    .insert(profiles)
-    .values({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      isAdmin: isAdminEmail(user.email),
-    })
-    .returning();
-
+  const created: Profile = {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    bio: "",
+    ckbAddress: "",
+    twitter: "",
+    skills: "",
+    isAdmin: isAdminEmail(user.email),
+    role: "member",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  store.profiles.push(created);
   return created;
 }
 
@@ -95,4 +80,18 @@ export async function requireAdmin() {
   }
 
   return session;
+}
+
+export async function setDemoSession() {
+  const jar = await cookies();
+  jar.set(DEMO_AUTH_COOKIE, "1", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
+export async function clearDemoSession() {
+  const jar = await cookies();
+  jar.delete(DEMO_AUTH_COOKIE);
 }

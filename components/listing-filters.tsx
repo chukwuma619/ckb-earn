@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listingCategories, listingPriorities, listingTypes } from "@/lib/db/schema";
+import { listingCategories, listingPriorities, listingTypes } from "@/lib/types";
 import { categoryLabel, priorityLabel } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -5,7 +5,7 @@ import { listListingSubmissions } from "@/lib/submissions";
 import { ListingForm } from "@/components/listing-form";
 import { updateSubmissionStatusAction } from "@/lib/actions";
 import { submissionStatusLabel } from "@/lib/format";
-import { submissionStatuses } from "@/lib/db/schema";
+import { submissionStatuses } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";

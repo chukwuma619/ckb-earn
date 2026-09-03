@@ -1,13 +1,10 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { getDb } from "@/lib/db";
-import {
-  listings,
-  submissions,
-  type ListingCategory,
-  type ListingPriority,
-  type ListingStatus,
-  type ListingType,
-} from "@/lib/db/schema";
+import { getStore } from "@/lib/data/store";
+import type {
+  ListingCategory,
+  ListingPriority,
+  ListingStatus,
+  ListingType,
+} from "@/lib/types";
 
 export function slugify(value: string) {
   return value
@@ -24,76 +21,57 @@ export async function listPublicListings(filters: {
   priority?: ListingPriority | "all";
   query?: string;
 }) {
-  const db = getDb();
-  const conditions = [eq(listings.status, "open")];
+  const store = getStore();
+  const needle = filters.query?.trim().toLowerCase();
 
-  if (filters.category && filters.category !== "all") {
-    conditions.push(eq(listings.category, filters.category));
-  }
-
-  if (filters.type && filters.type !== "all") {
-    conditions.push(eq(listings.type, filters.type));
-  }
-
-  if (filters.priority && filters.priority !== "all") {
-    conditions.push(eq(listings.priority, filters.priority));
-  }
-
-  if (filters.query?.trim()) {
-    const needle = `%${filters.query.trim()}%`;
-    conditions.push(
-      or(ilike(listings.title, needle), ilike(listings.description, needle))!,
-    );
-  }
-
-  return db
-    .select()
-    .from(listings)
-    .where(and(...conditions))
-    .orderBy(desc(listings.createdAt));
+  return store.listings
+    .filter((listing) => listing.status === "open")
+    .filter((listing) =>
+      !filters.category || filters.category === "all"
+        ? true
+        : listing.category === filters.category,
+    )
+    .filter((listing) =>
+      !filters.type || filters.type === "all"
+        ? true
+        : listing.type === filters.type,
+    )
+    .filter((listing) =>
+      !filters.priority || filters.priority === "all"
+        ? true
+        : listing.priority === filters.priority,
+    )
+    .filter((listing) =>
+      !needle
+        ? true
+        : listing.title.toLowerCase().includes(needle) ||
+          listing.description.toLowerCase().includes(needle),
+    )
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 export async function getListingBySlug(slug: string) {
-  const db = getDb();
-  const rows = await db
-    .select()
-    .from(listings)
-    .where(eq(listings.slug, slug))
-    .limit(1);
-
-  return rows[0] ?? null;
+  return getStore().listings.find((listing) => listing.slug === slug) ?? null;
 }
 
 export async function getListingById(id: string) {
-  const db = getDb();
-  const rows = await db
-    .select()
-    .from(listings)
-    .where(eq(listings.id, id))
-    .limit(1);
-
-  return rows[0] ?? null;
+  return getStore().listings.find((listing) => listing.id === id) ?? null;
 }
 
 export async function listAdminListings(status?: ListingStatus | "all") {
-  const db = getDb();
-  if (!status || status === "all") {
-    return db.select().from(listings).orderBy(desc(listings.createdAt));
-  }
+  const rows = getStore().listings;
+  const filtered =
+    !status || status === "all"
+      ? rows
+      : rows.filter((listing) => listing.status === status);
 
-  return db
-    .select()
-    .from(listings)
-    .where(eq(listings.status, status))
-    .orderBy(desc(listings.createdAt));
+  return [...filtered].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  );
 }
 
 export async function countSubmissions(listingId: string) {
-  const db = getDb();
-  const [row] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(submissions)
-    .where(eq(submissions.listingId, listingId));
-
-  return row?.count ?? 0;
+  return getStore().submissions.filter(
+    (submission) => submission.listingId === listingId,
+  ).length;
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Listing } from "@/lib/db/schema";
+import type { Listing } from "@/lib/types";
 import { formatDeadline, typeLabel } from "@/lib/format";
 import { Logo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";

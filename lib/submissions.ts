@@ -1,57 +1,73 @@
-import { and, desc, eq } from "drizzle-orm";
-import { getDb } from "@/lib/db";
-import { listings, profiles, submissions } from "@/lib/db/schema";
+import { getStore } from "@/lib/data/store";
 
 export async function getUserSubmission(listingId: string, userId: string) {
-  const db = getDb();
-  const rows = await db
-    .select()
-    .from(submissions)
-    .where(
-      and(eq(submissions.listingId, listingId), eq(submissions.userId, userId)),
-    )
-    .limit(1);
-
-  return rows[0] ?? null;
+  return (
+    getStore().submissions.find(
+      (submission) =>
+        submission.listingId === listingId && submission.userId === userId,
+    ) ?? null
+  );
 }
 
 export async function listUserSubmissions(userId: string) {
-  const db = getDb();
-  return db
-    .select({
-      submission: submissions,
-      listing: listings,
+  const store = getStore();
+  return store.submissions
+    .filter((submission) => submission.userId === userId)
+    .map((submission) => {
+      const listing = store.listings.find(
+        (row) => row.id === submission.listingId,
+      );
+      if (!listing) {
+        return null;
+      }
+      return { submission, listing };
     })
-    .from(submissions)
-    .innerJoin(listings, eq(submissions.listingId, listings.id))
-    .where(eq(submissions.userId, userId))
-    .orderBy(desc(submissions.createdAt));
+    .filter((row): row is NonNullable<typeof row> => row !== null)
+    .sort(
+      (a, b) =>
+        b.submission.createdAt.getTime() - a.submission.createdAt.getTime(),
+    );
 }
 
 export async function listListingSubmissions(listingId: string) {
-  const db = getDb();
-  return db
-    .select({
-      submission: submissions,
-      profile: profiles,
+  const store = getStore();
+  return store.submissions
+    .filter((submission) => submission.listingId === listingId)
+    .map((submission) => {
+      const profile = store.profiles.find(
+        (row) => row.userId === submission.userId,
+      );
+      if (!profile) {
+        return null;
+      }
+      return { submission, profile };
     })
-    .from(submissions)
-    .innerJoin(profiles, eq(submissions.userId, profiles.userId))
-    .where(eq(submissions.listingId, listingId))
-    .orderBy(desc(submissions.createdAt));
+    .filter((row): row is NonNullable<typeof row> => row !== null)
+    .sort(
+      (a, b) =>
+        b.submission.createdAt.getTime() - a.submission.createdAt.getTime(),
+    );
 }
 
 export async function listRecentSubmissions(limit = 20) {
-  const db = getDb();
-  return db
-    .select({
-      submission: submissions,
-      listing: listings,
-      profile: profiles,
+  const store = getStore();
+  return store.submissions
+    .map((submission) => {
+      const listing = store.listings.find(
+        (row) => row.id === submission.listingId,
+      );
+      const profile = store.profiles.find(
+        (row) => row.userId === submission.userId,
+      );
+      if (!listing || !profile) {
+        return null;
+      }
+      return { submission, listing, profile };
     })
-    .from(submissions)
-    .innerJoin(listings, eq(submissions.listingId, listings.id))
-    .innerJoin(profiles, eq(submissions.userId, profiles.userId))
-    .orderBy(desc(submissions.createdAt))
-    .limit(limit);
+    .filter((row): row is NonNullable<typeof row> => row !== null)
+    .sort(
+      (a, b) =>
+        b.submission.createdAt.getTime() - a.submission.createdAt.getTime(),
+    )
+    .slice(0, limit);
 }

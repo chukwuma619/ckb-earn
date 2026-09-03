@@ -4,7 +4,7 @@ import type {
   ListingStatus,
   ListingType,
   SubmissionStatus,
-} from "@/lib/db/schema";
+} from "@/lib/types";
 
 export function formatUsd(amount: number) {
   return new Intl.NumberFormat("en-US", {

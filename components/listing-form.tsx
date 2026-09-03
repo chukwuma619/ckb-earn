@@ -5,7 +5,7 @@ import {
   listingStatuses,
   listingTypes,
   type Listing,
-} from "@/lib/db/schema";
+} from "@/lib/types";
 import { categoryLabel, priorityLabel, statusLabel, typeLabel } from "@/lib/format";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";

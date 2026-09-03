@@ -1,27 +1,25 @@
 "use server";
 
-import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/server";
-import { requireAdmin, requireUser } from "@/lib/auth/session";
-import { getDb } from "@/lib/db";
+import {
+  clearDemoSession,
+  requireAdmin,
+  requireUser,
+} from "@/lib/auth/session";
+import { getStore, newId } from "@/lib/data/store";
+import { slugify } from "@/lib/listings";
 import {
   listingCategories,
   listingPriorities,
   listingStatuses,
   listingTypes,
-  listings,
-  profiles,
   submissionStatuses,
-  submissions,
   type ListingCategory,
   type ListingPriority,
   type ListingStatus,
   type ListingType,
   type SubmissionStatus,
-} from "@/lib/db/schema";
-import { slugify } from "@/lib/listings";
+} from "@/lib/types";
 
 function readString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -49,19 +47,18 @@ function isSubmissionStatus(value: string): value is SubmissionStatus {
 
 export async function updateProfileAction(formData: FormData) {
   const { user } = await requireUser();
-  const db = getDb();
+  const store = getStore();
+  const profile = store.profiles.find((row) => row.userId === user.id);
+  if (!profile) {
+    throw new Error("Profile not found.");
+  }
 
-  await db
-    .update(profiles)
-    .set({
-      name: readString(formData, "name") || user.name,
-      bio: readString(formData, "bio"),
-      ckbAddress: readString(formData, "ckbAddress"),
-      twitter: readString(formData, "twitter"),
-      skills: readString(formData, "skills"),
-      updatedAt: new Date(),
-    })
-    .where(eq(profiles.userId, user.id));
+  profile.name = readString(formData, "name") || user.name;
+  profile.bio = readString(formData, "bio");
+  profile.ckbAddress = readString(formData, "ckbAddress");
+  profile.twitter = readString(formData, "twitter");
+  profile.skills = readString(formData, "skills");
+  profile.updatedAt = new Date();
 
   revalidatePath("/profile");
   revalidatePath("/dashboard");
@@ -77,32 +74,34 @@ export async function submitToListingAction(formData: FormData) {
     throw new Error("A listing and a submission link are required.");
   }
 
-  const db = getDb();
-  const [listing] = await db
-    .select()
-    .from(listings)
-    .where(eq(listings.id, listingId))
-    .limit(1);
-
+  const store = getStore();
+  const listing = store.listings.find((row) => row.id === listingId);
   if (!listing || listing.status !== "open") {
     throw new Error("This listing is not accepting submissions.");
   }
 
-  await db
-    .insert(submissions)
-    .values({
+  const existing = store.submissions.find(
+    (submission) =>
+      submission.listingId === listingId && submission.userId === user.id,
+  );
+
+  if (existing) {
+    existing.link = link;
+    existing.notes = notes;
+  } else {
+    store.submissions.push({
+      id: newId("submission"),
       listingId,
       userId: user.id,
       link,
+      forumPostUrl: null,
+      milestoneNumber: null,
       notes,
-    })
-    .onConflictDoUpdate({
-      target: [submissions.listingId, submissions.userId],
-      set: {
-        link,
-        notes,
-      },
+      status: "pending",
+      createdAt: new Date(),
+      reviewedAt: null,
     });
+  }
 
   revalidatePath(`/bounties/${listing.slug}`);
   revalidatePath("/dashboard");
@@ -111,7 +110,7 @@ export async function submitToListingAction(formData: FormData) {
 
 export async function upsertListingAction(formData: FormData) {
   const { user } = await requireAdmin();
-  const db = getDb();
+  const store = getStore();
 
   const id = readString(formData, "id");
   const title = readString(formData, "title");
@@ -120,7 +119,7 @@ export async function upsertListingAction(formData: FormData) {
   const category = readString(formData, "category");
   const type = readString(formData, "type");
   const status = readString(formData, "status") || "open";
-  const priority = readString(formData, "priority") || "medium";
+  const priority = readString(formData, "priority") || "standard";
   const rewardUsd = Number(readString(formData, "rewardUsd") || "0");
   const rewardLabel = readString(formData, "rewardLabel");
   const winnerCount = Number(readString(formData, "winnerCount") || "1");
@@ -156,41 +155,35 @@ export async function upsertListingAction(formData: FormData) {
   };
 
   if (id) {
-    await db.update(listings).set(values).where(eq(listings.id, id));
-    const [listing] = await db
-      .select()
-      .from(listings)
-      .where(eq(listings.id, id))
-      .limit(1);
+    const listing = store.listings.find((row) => row.id === id);
+    if (!listing) {
+      throw new Error("Listing not found.");
+    }
+    Object.assign(listing, values);
     revalidatePath("/");
     revalidatePath("/admin");
-    if (listing) {
-      revalidatePath(`/bounties/${listing.slug}`);
-      revalidatePath(`/admin/bounties/${listing.id}`);
-    }
+    revalidatePath(`/bounties/${listing.slug}`);
+    revalidatePath(`/admin/bounties/${listing.id}`);
     return;
   }
 
   const baseSlug = slugify(title) || "listing";
   let slug = baseSlug;
   let attempt = 1;
-  while (true) {
-    const existing = await db
-      .select({ id: listings.id })
-      .from(listings)
-      .where(eq(listings.slug, slug))
-      .limit(1);
-    if (!existing[0]) {
-      break;
-    }
+  while (store.listings.some((listing) => listing.slug === slug)) {
     attempt += 1;
     slug = `${baseSlug}-${attempt}`;
   }
 
-  const [created] = await db
-    .insert(listings)
-    .values({ ...values, slug })
-    .returning();
+  const created = {
+    id: newId("listing"),
+    slug,
+    forumThreadUrl: null as string | null,
+    isMilestoneBased: false,
+    createdAt: new Date(),
+    ...values,
+  };
+  store.listings.push(created);
 
   revalidatePath("/");
   revalidatePath("/admin");
@@ -206,40 +199,22 @@ export async function updateSubmissionStatusAction(formData: FormData) {
     throw new Error("A valid submission and status are required.");
   }
 
-  const db = getDb();
-  const [current] = await db
-    .select()
-    .from(submissions)
-    .where(eq(submissions.id, submissionId))
-    .limit(1);
-
+  const store = getStore();
+  const current = store.submissions.find(
+    (submission) => submission.id === submissionId,
+  );
   if (!current) {
     throw new Error("Submission not found.");
   }
 
-  await db
-    .update(submissions)
-    .set({
-      status,
-      reviewedAt: new Date(),
-    })
-    .where(eq(submissions.id, submissionId));
+  current.status = status;
+  current.reviewedAt = new Date();
 
-  if (status === "winner" || status === "paid") {
-    await db
-      .update(listings)
-      .set({
-        status: status === "paid" ? "awarded" : "reviewing",
-        updatedAt: new Date(),
-      })
-      .where(eq(listings.id, current.listingId));
+  const listing = store.listings.find((row) => row.id === current.listingId);
+  if (listing && (status === "winner" || status === "paid")) {
+    listing.status = status === "paid" ? "awarded" : "reviewing";
+    listing.updatedAt = new Date();
   }
-
-  const [listing] = await db
-    .select()
-    .from(listings)
-    .where(eq(listings.id, current.listingId))
-    .limit(1);
 
   revalidatePath("/admin");
   revalidatePath("/dashboard");
@@ -250,7 +225,6 @@ export async function updateSubmissionStatusAction(formData: FormData) {
 }
 
 export async function signOutAction() {
-  await auth.api.signOut({
-    headers: await headers(),
-  });
+  await clearDemoSession();
+  revalidatePath("/");
 }
