@@ -1,6 +1,22 @@
 import { getStore } from "@/lib/data/store";
 import type { ListingCategory, ListingStatus, ListingType } from "@/lib/types";
 
+export function isListingEnded(listing: {
+  status: ListingStatus;
+  deadline: Date | null;
+}) {
+  if (listing.status === "closed") {
+    return true;
+  }
+  if (listing.status !== "open") {
+    return false;
+  }
+  if (!listing.deadline) {
+    return false;
+  }
+  return listing.deadline.getTime() <= Date.now();
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()
@@ -20,6 +36,7 @@ export async function listPublicListings(filters: {
 
   return store.listings
     .filter((listing) => listing.status === "open")
+    .filter((listing) => !isListingEnded(listing))
     .filter((listing) =>
       !filters.category || filters.category === "all"
         ? true

@@ -9,12 +9,9 @@ export const listingTypes = ["bounty", "grant"] as const;
 
 export const listingStatuses = ["draft", "open", "closed"] as const;
 
-export const submissionStatuses = [
-  "pending",
-  "winner",
-  "rejected",
-  "paid",
-] as const;
+export const submissionStatuses = ["pending", "rejected"] as const;
+
+export const awardStatuses = ["awarded", "paid"] as const;
 
 export const formFieldTypes = [
   "short_text",
@@ -29,6 +26,7 @@ export type ListingCategory = (typeof listingCategories)[number];
 export type ListingType = (typeof listingTypes)[number];
 export type ListingStatus = (typeof listingStatuses)[number];
 export type SubmissionStatus = (typeof submissionStatuses)[number];
+export type AwardStatus = (typeof awardStatuses)[number];
 export type FormFieldType = (typeof formFieldTypes)[number];
 
 export type FormField = {
@@ -80,9 +78,19 @@ export type Submission = {
   listingId: string;
   userId: string;
   answers: Record<string, string>;
-  prizeSlotId: string | null;
-  prizeAmount: number | null;
   status: SubmissionStatus;
   createdAt: Date;
   reviewedAt: Date | null;
+};
+
+export type Award = {
+  id: string;
+  listingId: string;
+  prizeSlotId: string;
+  submissionId: string;
+  userId: string;
+  amount: number;
+  status: AwardStatus;
+  createdAt: Date;
+  paidAt: Date | null;
 };

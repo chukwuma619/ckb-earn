@@ -11,11 +11,8 @@ import {
   collectSubmissionAnswers,
   parseFormFieldsJson,
 } from "@/lib/forms";
-import {
-  assignedPrizeSlotIds,
-  parsePrizeSlotsJson,
-} from "@/lib/prizes";
-import { slugify } from "@/lib/listings";
+import { parsePrizeSlotsJson } from "@/lib/prizes";
+import { isListingEnded, slugify } from "@/lib/listings";
 import {
   listingCategories,
   listingStatuses,
@@ -76,7 +73,7 @@ export async function submitToListingAction(formData: FormData) {
 
   const store = getStore();
   const listing = store.listings.find((row) => row.id === listingId);
-  if (!listing || listing.status !== "open") {
+  if (!listing || listing.status !== "open" || isListingEnded(listing)) {
     throw new Error("This listing is not accepting submissions.");
   }
 
@@ -95,8 +92,6 @@ export async function submitToListingAction(formData: FormData) {
       listingId,
       userId: user.id,
       answers,
-      prizeSlotId: null,
-      prizeAmount: null,
       status: "pending",
       createdAt: new Date(),
       reviewedAt: null,
@@ -181,7 +176,6 @@ export async function updateSubmissionStatusAction(formData: FormData) {
   await requireAdmin();
   const submissionId = readString(formData, "submissionId");
   const status = readString(formData, "status");
-  const prizeSlotId = readString(formData, "prizeSlotId");
 
   if (!submissionId || !isSubmissionStatus(status)) {
     throw new Error("A valid submission and status are required.");
@@ -200,40 +194,140 @@ export async function updateSubmissionStatusAction(formData: FormData) {
     throw new Error("Listing not found.");
   }
 
-  if (status === "winner" || status === "paid") {
-    const slot = listing.prizeSlots.find((prize) => prize.id === prizeSlotId);
-    if (!slot) {
-      throw new Error("Choose a prize slot for this winner.");
-    }
-
-    const taken = assignedPrizeSlotIds(
-      store.submissions.filter((submission) => submission.id !== current.id),
-    );
-    if (taken.has(slot.id)) {
-      throw new Error("That prize slot is already assigned.");
-    }
-
-    current.prizeSlotId = slot.id;
-    current.prizeAmount = slot.amount;
-  } else {
-    current.prizeSlotId = null;
-    current.prizeAmount = null;
-  }
-
   current.status = status;
   current.reviewedAt = new Date();
 
-  const paidSlots = assignedPrizeSlotIds(
-    store.submissions.filter(
-      (submission) =>
-        submission.listingId === listing.id && submission.status === "paid",
-    ),
-  );
-  if (listing.prizeSlots.every((slot) => paidSlots.has(slot.id))) {
-    listing.status = "closed";
-    listing.updatedAt = new Date();
+  if (status === "rejected") {
+    store.awards = store.awards.filter(
+      (award) => award.submissionId !== current.id,
+    );
   }
 
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  revalidatePath(`/bounties/${listing.slug}`);
+  revalidatePath(`/admin/bounties/${listing.id}`);
+}
+
+export async function endListingAction(formData: FormData) {
+  await requireAdmin();
+  const listingId = readString(formData, "listingId");
+  const store = getStore();
+  const listing = store.listings.find((row) => row.id === listingId);
+  if (!listing) {
+    throw new Error("Listing not found.");
+  }
+
+  listing.status = "closed";
+  listing.updatedAt = new Date();
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath(`/bounties/${listing.slug}`);
+  revalidatePath(`/admin/bounties/${listing.id}`);
+}
+
+export async function settlePrizesAction(formData: FormData) {
+  await requireAdmin();
+  const listingId = readString(formData, "listingId");
+  const store = getStore();
+  const listing = store.listings.find((row) => row.id === listingId);
+  if (!listing) {
+    throw new Error("Listing not found.");
+  }
+
+  listing.status = "closed";
+  listing.updatedAt = new Date();
+
+  const listingSubmissions = store.submissions.filter(
+    (submission) => submission.listingId === listingId,
+  );
+  const assignments = new Map<string, string>();
+
+  for (const slot of listing.prizeSlots) {
+    const submissionId = readString(formData, `prize_${slot.id}`);
+    if (!submissionId) {
+      throw new Error("Assign a participant to every prize.");
+    }
+    if (assignments.has(submissionId)) {
+      throw new Error("Each participant can only receive one prize.");
+    }
+    assignments.set(submissionId, slot.id);
+  }
+
+  for (const submissionId of assignments.keys()) {
+    const exists = listingSubmissions.some((row) => row.id === submissionId);
+    if (!exists) {
+      throw new Error("A selected participant was not found.");
+    }
+  }
+
+  const now = new Date();
+  const winnerIds = new Set(assignments.keys());
+
+  store.awards = store.awards.filter((award) => award.listingId !== listingId);
+
+  for (const [submissionId, slotId] of assignments) {
+    const submission = listingSubmissions.find((row) => row.id === submissionId);
+    const slot = listing.prizeSlots.find((prize) => prize.id === slotId);
+    if (!submission || !slot) {
+      throw new Error("Prize assignment is invalid.");
+    }
+
+    submission.status = "pending";
+    submission.reviewedAt = now;
+    store.awards.push({
+      id: newId("award"),
+      listingId,
+      prizeSlotId: slot.id,
+      submissionId: submission.id,
+      userId: submission.userId,
+      amount: slot.amount,
+      status: "awarded",
+      createdAt: now,
+      paidAt: null,
+    });
+  }
+
+  for (const submission of listingSubmissions) {
+    if (!winnerIds.has(submission.id)) {
+      submission.status = "rejected";
+      submission.reviewedAt = now;
+    }
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  revalidatePath(`/bounties/${listing.slug}`);
+  revalidatePath(`/admin/bounties/${listing.id}`);
+}
+
+export async function markWinnersPaidAction(formData: FormData) {
+  await requireAdmin();
+  const listingId = readString(formData, "listingId");
+  const store = getStore();
+  const listing = store.listings.find((row) => row.id === listingId);
+  if (!listing) {
+    throw new Error("Listing not found.");
+  }
+
+  const now = new Date();
+  const awards = store.awards.filter((award) => award.listingId === listingId);
+
+  if (awards.length === 0) {
+    throw new Error("Award prizes before marking them paid.");
+  }
+
+  for (const award of awards) {
+    award.status = "paid";
+    award.paidAt = now;
+  }
+
+  listing.status = "closed";
+  listing.updatedAt = now;
+
+  revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/dashboard");
   revalidatePath(`/bounties/${listing.slug}`);

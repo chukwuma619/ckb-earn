@@ -1,4 +1,5 @@
 import type {
+  AwardStatus,
   ListingCategory,
   ListingStatus,
   ListingType,
@@ -88,10 +89,19 @@ export function submissionStatusLabel(status: SubmissionStatus) {
   switch (status) {
     case "pending":
       return "Pending review";
-    case "winner":
-      return "Winner";
     case "rejected":
       return "Not selected";
+    default: {
+      const _exhaustive: never = status;
+      return _exhaustive;
+    }
+  }
+}
+
+export function awardStatusLabel(status: AwardStatus) {
+  switch (status) {
+    case "awarded":
+      return "Awarded";
     case "paid":
       return "Paid";
     default: {

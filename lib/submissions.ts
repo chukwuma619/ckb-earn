@@ -20,7 +20,9 @@ export async function listUserSubmissions(userId: string) {
       if (!listing) {
         return null;
       }
-      return { submission, listing };
+      const award =
+        store.awards.find((row) => row.submissionId === submission.id) ?? null;
+      return { submission, listing, award };
     })
     .filter((row): row is NonNullable<typeof row> => row !== null)
     .sort(

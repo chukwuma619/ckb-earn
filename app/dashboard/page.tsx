@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { listUserSubmissions } from "@/lib/submissions";
-import { formatUsd, submissionStatusLabel } from "@/lib/format";
+import { formatUsd, submissionStatusLabel, awardStatusLabel } from "@/lib/format";
 import { formatPrizeBreakdown, prizePoolTotal } from "@/lib/prizes";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({ submission, listing }) => (
+              {rows.map(({ submission, listing, award }) => (
                 <TableRow key={submission.id}>
                   <TableCell>
                     <Button variant="link" className="h-auto p-0" asChild>
@@ -71,17 +71,19 @@ export default async function DashboardPage() {
                     </p>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {submissionStatusLabel(submission.status)}
+                    {award
+                      ? awardStatusLabel(award.status)
+                      : submissionStatusLabel(submission.status)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {submission.prizeAmount != null
-                      ? formatUsd(submission.prizeAmount)
+                    {award
+                      ? formatUsd(award.amount)
                       : formatPrizeBreakdown(listing.prizeSlots)}
-                    {submission.prizeAmount == null ? (
+                    {award ? null : (
                       <p className="text-xs font-normal text-muted-foreground">
                         Pool {formatUsd(prizePoolTotal(listing.prizeSlots))}
                       </p>
-                    ) : null}
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

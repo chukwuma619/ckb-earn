@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { countSubmissions, getListingBySlug } from "@/lib/listings";
+import { countSubmissions, getListingBySlug, isListingEnded } from "@/lib/listings";
 import { getUserSubmission } from "@/lib/submissions";
 import {
   categoryLabel,
@@ -43,7 +43,7 @@ export default async function BountyPage({
     countSubmissions(listing.id),
     user ? getUserSubmission(listing.id, user.id) : Promise.resolve(null),
   ]);
-  const open = listing.status === "open";
+  const open = listing.status === "open" && !isListingEnded(listing);
 
   return (
     <main className="mx-auto grid w-full max-w-[70rem] gap-8 px-3 py-6 sm:px-4 lg:grid-cols-[minmax(0,1fr)_18rem]">

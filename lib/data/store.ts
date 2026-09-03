@@ -1,4 +1,4 @@
-import type { FormField, Listing, PrizeSlot, Profile, Submission } from "@/lib/types";
+import type { Award, FormField, Listing, PrizeSlot, Profile, Submission } from "@/lib/types";
 import { defaultFormFields } from "@/lib/forms";
 
 export const DEMO_USER = {
@@ -13,10 +13,11 @@ type Store = {
   profiles: Profile[];
   listings: Listing[];
   submissions: Submission[];
+  awards: Award[];
 };
 
 const globalForStore = globalThis as typeof globalThis & {
-  __ckbEarnStoreV8?: Store;
+  __ckbEarnStoreV9?: Store;
 };
 
 function daysFromNow(days: number) {
@@ -259,8 +260,6 @@ Post updates on [Nervos Talk](https://talk.nervos.org/) and keep this listing li
         platform: "X / Twitter",
         notes: "Posted a Fiber meme thread.",
       },
-      prizeSlotId: null,
-      prizeAmount: null,
       status: "pending",
       createdAt: now,
       reviewedAt: null,
@@ -271,14 +270,15 @@ Post updates on [Nervos Talk](https://talk.nervos.org/) and keep this listing li
     profiles: [demoProfile],
     listings,
     submissions,
+    awards: [],
   };
 }
 
 export function getStore(): Store {
-  if (!globalForStore.__ckbEarnStoreV8) {
-    globalForStore.__ckbEarnStoreV8 = createSeedStore();
+  if (!globalForStore.__ckbEarnStoreV9) {
+    globalForStore.__ckbEarnStoreV9 = createSeedStore();
   }
-  return globalForStore.__ckbEarnStoreV8;
+  return globalForStore.__ckbEarnStoreV9;
 }
 
 export function newId(prefix: string) {

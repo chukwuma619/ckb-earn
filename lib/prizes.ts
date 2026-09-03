@@ -1,4 +1,4 @@
-import type { PrizeSlot, Submission } from "@/lib/types";
+import type { PrizeSlot } from "@/lib/types";
 import { formatUsd } from "@/lib/format";
 
 export function ordinalLabel(place: number) {
@@ -103,16 +103,4 @@ export function parsePrizeSlotsJson(raw: string): PrizeSlot[] {
   }
 
   return sortPrizeSlots(slots);
-}
-
-export function assignedPrizeSlotIds(submissions: Submission[]) {
-  return new Set(
-    submissions
-      .filter(
-        (submission) =>
-          (submission.status === "winner" || submission.status === "paid") &&
-          submission.prizeSlotId,
-      )
-      .map((submission) => submission.prizeSlotId as string),
-  );
 }
