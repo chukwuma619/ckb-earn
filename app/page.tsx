@@ -64,31 +64,40 @@ export default async function Home({
 
   return (
     <main className="mx-auto w-full max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-        <div>
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Nervos Community Catalyst
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            Community Keeps Building. Discover Bounties, Grants, and Spark mini-grants to build
-            the future of CKB.
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-          <Button variant="outline" size="lg" asChild>
-            <Link href={user ? "/admin/bounties/new" : "/auth/sign-in"}>Become a Sponsor</Link>
-          </Button>
-          <Button size="lg" asChild>
-            <Link href={user ? "/dashboard" : "/auth/sign-up"}>
-              {user ? "Dashboard" : "Start Earning"}
-            </Link>
-          </Button>
+      <div className="relative mb-12 overflow-hidden rounded-[4px] border border-slate/10 bg-card px-6 py-10 sm:px-10 dark:border-void-line">
+        <div
+          aria-hidden
+          className="reactor-grid pointer-events-none absolute inset-0 opacity-40 dark:opacity-20"
+        />
+        <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <p className="kicker mb-3">Nervos community</p>
+            <h1 className="display text-4xl text-slate sm:text-5xl dark:text-stone">
+              Community Keeps Building
+            </h1>
+            <p className="lead mt-4 max-w-2xl">
+              Discover bounties, grants, and Spark mini-grants. One profile. Paid
+              in CKB.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <Button variant="outline" size="lg" asChild>
+              <Link href={user ? "/admin/bounties/new" : "/auth/sign-in"}>
+                Become a Sponsor
+              </Link>
+            </Button>
+            <Button size="lg" asChild>
+              <Link href={user ? "/dashboard" : "/auth/sign-up"}>
+                {user ? "Dashboard" : "Start Earning"}
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
         <aside className="w-full shrink-0 lg:w-64">
-          <Card className="sticky top-20">
+          <Card className="sticky top-20 shadow-none">
             <CardContent>
               <ListingFilters
                 category={params.category}

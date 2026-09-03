@@ -1,9 +1,17 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/db/schema";
 import { formatDeadline, typeLabel } from "@/lib/format";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Logo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
+import { cn } from "@/lib/utils";
 
 function isOpen(listing: Listing) {
   if (listing.status !== "open") {
@@ -15,6 +23,22 @@ function isOpen(listing: Listing) {
   return listing.deadline.getTime() > Date.now();
 }
 
+function typeBadgeVariant(type: Listing["type"]) {
+  switch (type) {
+    case "spark":
+      return "spark" as const;
+    case "grant":
+      return "outline" as const;
+    case "bounty":
+    case "permanent":
+      return "secondary" as const;
+    default: {
+      const _exhaustive: never = type;
+      return _exhaustive;
+    }
+  }
+}
+
 export function ListingCard({
   listing,
   submissions,
@@ -22,42 +46,64 @@ export function ListingCard({
   listing: Listing;
   submissions?: number;
 }) {
-  const featured = listing.priority === "urgent" || (listing.priority === "high" && isOpen(listing));
+  const featured =
+    listing.priority === "urgent" ||
+    (listing.priority === "high" && isOpen(listing));
 
   return (
-    <Item variant="outline" className={featured ? "bg-muted/50" : undefined}>
+    <Item
+      variant="outline"
+      className={cn(
+        "lift transition-transform duration-150 ease-[var(--ease-out)]",
+        featured && "border-reactor/30 bg-reactor-wash/40 dark:bg-reactor/10",
+      )}
+    >
       <ItemMedia>
-        <Avatar className="size-12 rounded-lg after:rounded-lg">
-          <AvatarFallback className="rounded-lg text-xs font-bold">CKB</AvatarFallback>
-        </Avatar>
+        <div className="flex size-12 items-center justify-center rounded-[4px] border border-slate/10 bg-stone-2 dark:border-void-line dark:bg-void-mid">
+          <Logo className="size-5" />
+        </div>
       </ItemMedia>
       <ItemContent>
-        <ItemTitle>
+        <ItemTitle className="font-display font-bold tracking-tight">
           <Link href={`/bounties/${listing.slug}`}>{listing.title}</Link>
         </ItemTitle>
         <ItemDescription className="flex flex-wrap items-center gap-2">
-          <span>{typeLabel(listing.type)}</span>
+          <Badge variant={typeBadgeVariant(listing.type)}>
+            {typeLabel(listing.type)}
+          </Badge>
           {featured ? (
-            <Badge variant={listing.priority === "urgent" ? "destructive" : "secondary"}>
+            <Badge
+              variant={
+                listing.priority === "urgent" ? "destructive" : "default"
+              }
+            >
               {listing.priority === "urgent" ? "Urgent" : "High"}
             </Badge>
           ) : null}
           {listing.forumThreadUrl ? (
             <Badge variant="outline" asChild>
               <a href={listing.forumThreadUrl} target="_blank" rel="noreferrer">
-                Forum Link
+                Forum
               </a>
             </Badge>
           ) : null}
           {typeof submissions === "number" && submissions > 0 ? (
-            <span>{submissions} Submissions</span>
+            <span className="font-mono text-[0.7rem] uppercase tracking-wide">
+              {submissions} submissions
+            </span>
           ) : null}
-          <span>{formatDeadline(listing.deadline)}</span>
+          <span className="font-mono text-[0.7rem] uppercase tracking-wide">
+            {formatDeadline(listing.deadline)}
+          </span>
         </ItemDescription>
       </ItemContent>
       <ItemActions className="flex-col items-end">
-        <span className="text-lg font-semibold">{listing.rewardUsd.toLocaleString()}</span>
-        <span className="text-xs text-muted-foreground">USD</span>
+        <span className="font-mono text-lg font-semibold tabular-nums tracking-tight">
+          ${listing.rewardUsd.toLocaleString()}
+        </span>
+        <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted-foreground">
+          USD
+        </span>
       </ItemActions>
     </Item>
   );
