@@ -15,7 +15,7 @@ type Store = {
 };
 
 const globalForStore = globalThis as typeof globalThis & {
-  __ckbEarnStore?: Store;
+  __ckbEarnStoreV2?: Store;
 };
 
 function daysFromNow(days: number) {
@@ -46,7 +46,6 @@ function createSeedStore(): Store {
       description:
         "Create original memes that are actually funny and specific to CKB, Fiber, or DAO life. Low-effort templates without a CKB punchline will be skipped.",
       requirements: "Image or post link. Say where you published it.",
-      category: "growth",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -68,7 +67,6 @@ function createSeedStore(): Store {
         "Write a clear article that explains what new builders are creating on CKB, why it matters, and how others can get involved.",
       requirements:
         "Public article link, at least 800 words, and a short note on the angle you took.",
-      category: "content",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -89,7 +87,6 @@ function createSeedStore(): Store {
       description:
         "Identify and fix a critical bug in the Fiber network implementation.",
       requirements: "PR merged into the main repository.",
-      category: "build",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -111,7 +108,6 @@ function createSeedStore(): Store {
         "Fund a small open-source tool that makes it easier for builders to ship on CKB.",
       requirements:
         "Short proposal with scope, timeline, and how the community benefits.",
-      category: "build",
       type: "grant",
       status: "open",
       forumThreadUrl: "https://talk.nervos.org/",
@@ -150,10 +146,10 @@ function createSeedStore(): Store {
 }
 
 export function getStore(): Store {
-  if (!globalForStore.__ckbEarnStore) {
-    globalForStore.__ckbEarnStore = createSeedStore();
+  if (!globalForStore.__ckbEarnStoreV2) {
+    globalForStore.__ckbEarnStoreV2 = createSeedStore();
   }
-  return globalForStore.__ckbEarnStore;
+  return globalForStore.__ckbEarnStoreV2;
 }
 
 export function newId(prefix: string) {

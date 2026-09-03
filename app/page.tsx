@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ListingCard } from "@/components/listing-card";
 import { ListingFilters } from "@/components/listing-filters";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { listingCategories, listingTypes } from "@/lib/types";
-import type { ListingCategory, ListingType } from "@/lib/types";
+import { listingTypes } from "@/lib/types";
+import type { ListingType } from "@/lib/types";
 import { countSubmissions, listPublicListings } from "@/lib/listings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,15 +18,6 @@ import { ItemGroup } from "@/components/ui/item";
 
 export const dynamic = "force-dynamic";
 
-function asCategory(value?: string): ListingCategory | "all" | undefined {
-  if (!value || value === "all") {
-    return value === "all" ? "all" : undefined;
-  }
-  return (listingCategories as readonly string[]).includes(value)
-    ? (value as ListingCategory)
-    : undefined;
-}
-
 function asType(value?: string): ListingType | "all" | undefined {
   if (!value || value === "all") {
     return value === "all" ? "all" : undefined;
@@ -39,12 +30,11 @@ function asType(value?: string): ListingType | "all" | undefined {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; type?: string }>;
 }) {
   const params = await searchParams;
   const { user } = await getCurrentProfile();
   const listings = await listPublicListings({
-    category: asCategory(params.category),
     type: asType(params.type),
     query: params.q,
   });
@@ -89,7 +79,6 @@ export default async function Home({
           <Card className="sticky top-20 shadow-none">
             <CardContent>
               <ListingFilters
-                category={params.category}
                 type={params.type}
                 query={params.q}
               />

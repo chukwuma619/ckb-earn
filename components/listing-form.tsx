@@ -1,11 +1,10 @@
 import { upsertListingAction } from "@/lib/actions";
 import {
-  listingCategories,
   listingStatuses,
   listingTypes,
   type Listing,
 } from "@/lib/types";
-import { categoryLabel, statusLabel, typeLabel } from "@/lib/format";
+import { statusLabel, typeLabel } from "@/lib/format";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -66,21 +65,6 @@ export function ListingForm({ listing }: { listing?: Listing }) {
               {listingTypes.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {typeLabel(value)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="category">Category</FieldLabel>
-            <NativeSelect
-              id="category"
-              name="category"
-              defaultValue={listing?.category ?? "content"}
-              className="w-full"
-            >
-              {listingCategories.map((value) => (
-                <NativeSelectOption key={value} value={value}>
-                  {categoryLabel(value)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>

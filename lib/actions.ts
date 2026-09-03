@@ -9,11 +9,9 @@ import {
 import { getStore, newId } from "@/lib/data/store";
 import { slugify } from "@/lib/listings";
 import {
-  listingCategories,
   listingStatuses,
   listingTypes,
   submissionStatuses,
-  type ListingCategory,
   type ListingStatus,
   type ListingType,
   type SubmissionStatus,
@@ -21,10 +19,6 @@ import {
 
 function readString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
-}
-
-function isCategory(value: string): value is ListingCategory {
-  return (listingCategories as readonly string[]).includes(value);
 }
 
 function isType(value: string): value is ListingType {
@@ -110,7 +104,6 @@ export async function upsertListingAction(formData: FormData) {
   const title = readString(formData, "title");
   const description = readString(formData, "description");
   const requirements = readString(formData, "requirements");
-  const category = readString(formData, "category");
   const type = readString(formData, "type");
   const status = readString(formData, "status") || "open";
   const rewardUsd = Number(readString(formData, "rewardUsd") || "0");
@@ -122,8 +115,8 @@ export async function upsertListingAction(formData: FormData) {
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-  if (!title || !description || !isCategory(category) || !isType(type)) {
-    throw new Error("Title, description, category, and type are required.");
+  if (!title || !description || !isType(type)) {
+    throw new Error("Title, description, and type are required.");
   }
 
   if (!isStatus(status)) {
@@ -134,7 +127,6 @@ export async function upsertListingAction(formData: FormData) {
     title,
     description,
     requirements,
-    category,
     type,
     status,
     rewardUsd: Number.isFinite(rewardUsd) ? rewardUsd : 0,

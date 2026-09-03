@@ -5,7 +5,6 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { countSubmissions, getListingBySlug } from "@/lib/listings";
 import { getUserSubmission } from "@/lib/submissions";
 import {
-  categoryLabel,
   formatDeadline,
   formatUsd,
   statusLabel,
@@ -57,7 +56,7 @@ export default async function BountyPage({
           <div>
             <h1 className="text-xl font-semibold md:text-2xl">{listing.title}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              CKB Rewards · {typeLabel(listing.type)} · {categoryLabel(listing.category)}
+              CKB Rewards · {typeLabel(listing.type)}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{statusLabel(listing.status)}</Badge>

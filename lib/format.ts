@@ -1,5 +1,4 @@
 import type {
-  ListingCategory,
   ListingStatus,
   ListingType,
   SubmissionStatus,
@@ -37,27 +36,6 @@ export function formatDeadline(deadline: Date | null) {
     month: "short",
     day: "numeric",
   });
-}
-
-export function categoryLabel(category: ListingCategory) {
-  switch (category) {
-    case "content":
-      return "Content";
-    case "build":
-      return "Build";
-    case "growth":
-      return "Growth";
-    case "pioneer":
-      return "Pioneer";
-    case "leadership":
-      return "Leadership";
-    case "dao":
-      return "DAO";
-    default: {
-      const _exhaustive: never = category;
-      return _exhaustive;
-    }
-  }
 }
 
 export function typeLabel(type: ListingType) {
