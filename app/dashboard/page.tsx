@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { listUserSubmissions } from "@/lib/submissions";
-import { submissionStatusLabel } from "@/lib/format";
+import { formatUsd, submissionStatusLabel } from "@/lib/format";
+import { formatPrizeBreakdown, prizePoolTotal } from "@/lib/prizes";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -73,8 +74,14 @@ export default async function DashboardPage() {
                     {submissionStatusLabel(submission.status)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {listing.rewardAmount.toLocaleString()}{" "}
-                    <span className="text-muted-foreground">USD</span>
+                    {submission.prizeAmount != null
+                      ? formatUsd(submission.prizeAmount)
+                      : formatPrizeBreakdown(listing.prizeSlots)}
+                    {submission.prizeAmount == null ? (
+                      <p className="text-xs font-normal text-muted-foreground">
+                        Pool {formatUsd(prizePoolTotal(listing.prizeSlots))}
+                      </p>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))}

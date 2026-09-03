@@ -1,4 +1,4 @@
-import type { FormField, Listing, Profile, Submission } from "@/lib/types";
+import type { FormField, Listing, PrizeSlot, Profile, Submission } from "@/lib/types";
 import { defaultFormFields } from "@/lib/forms";
 
 export const DEMO_USER = {
@@ -16,11 +16,20 @@ type Store = {
 };
 
 const globalForStore = globalThis as typeof globalThis & {
-  __ckbEarnStoreV6?: Store;
+  __ckbEarnStoreV8?: Store;
 };
 
 function daysFromNow(days: number) {
   return new Date(Date.now() + days * 86_400_000);
+}
+
+function prizes(...amounts: number[]): PrizeSlot[] {
+  return [...amounts]
+    .sort((a, b) => b - a)
+    .map((amount, index) => ({
+      id: `prize-${index + 1}-${amount}`,
+      amount,
+    }));
 }
 
 function field(
@@ -80,7 +89,7 @@ Post your meme publicly and submit the link.`,
       category: "growth",
       type: "bounty",
       status: "open",
-      rewardAmount: 50,
+      prizeSlots: prizes(50, 50, 50, 50),
       deadline: daysFromNow(14),
       formFields: [
         field("meme-link", "url", "Meme link", {
@@ -122,7 +131,7 @@ Write a clear article that explains what new builders are creating on CKB, why i
       category: "content",
       type: "bounty",
       status: "open",
-      rewardAmount: 150,
+      prizeSlots: prizes(100, 75, 50),
       deadline: daysFromNow(10),
       formFields: [
         field("article-link", "url", "Article link", { required: true }),
@@ -153,7 +162,7 @@ Your PR must be **merged** into the main repository to qualify for payment.`,
       category: "development",
       type: "bounty",
       status: "open",
-      rewardAmount: 2000,
+      prizeSlots: prizes(2000),
       deadline: daysFromNow(5),
       formFields: [
         field("pr-link", "url", "Pull request URL", { required: true }),
@@ -188,7 +197,7 @@ Share a Figma or public prototype link plus a short note on the key UX decisions
       category: "design",
       type: "bounty",
       status: "open",
-      rewardAmount: 400,
+      prizeSlots: prizes(250, 150),
       deadline: daysFromNow(21),
       formFields: [
         field("prototype-link", "url", "Figma / prototype link", {
@@ -225,7 +234,7 @@ Post updates on [Nervos Talk](https://talk.nervos.org/) and keep this listing li
       category: "development",
       type: "grant",
       status: "open",
-      rewardAmount: 2500,
+      prizeSlots: prizes(2500),
       deadline: daysFromNow(45),
       formFields: defaultFormFields().concat([
         field("repo", "url", "Repository link", { required: false }),
@@ -250,6 +259,8 @@ Post updates on [Nervos Talk](https://talk.nervos.org/) and keep this listing li
         platform: "X / Twitter",
         notes: "Posted a Fiber meme thread.",
       },
+      prizeSlotId: null,
+      prizeAmount: null,
       status: "pending",
       createdAt: now,
       reviewedAt: null,
@@ -264,10 +275,10 @@ Post updates on [Nervos Talk](https://talk.nervos.org/) and keep this listing li
 }
 
 export function getStore(): Store {
-  if (!globalForStore.__ckbEarnStoreV6) {
-    globalForStore.__ckbEarnStoreV6 = createSeedStore();
+  if (!globalForStore.__ckbEarnStoreV8) {
+    globalForStore.__ckbEarnStoreV8 = createSeedStore();
   }
-  return globalForStore.__ckbEarnStoreV6;
+  return globalForStore.__ckbEarnStoreV8;
 }
 
 export function newId(prefix: string) {

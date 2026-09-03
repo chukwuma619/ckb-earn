@@ -40,6 +40,11 @@ export type FormField = {
   options: string[];
 };
 
+export type PrizeSlot = {
+  id: string;
+  amount: number;
+};
+
 export type Profile = {
   userId: string;
   email: string;
@@ -62,7 +67,7 @@ export type Listing = {
   category: ListingCategory;
   type: ListingType;
   status: ListingStatus;
-  rewardAmount: number;
+  prizeSlots: PrizeSlot[];
   deadline: Date | null;
   formFields: FormField[];
   createdBy: string;
@@ -75,6 +80,8 @@ export type Submission = {
   listingId: string;
   userId: string;
   answers: Record<string, string>;
+  prizeSlotId: string | null;
+  prizeAmount: number | null;
   status: SubmissionStatus;
   createdAt: Date;
   reviewedAt: Date | null;

@@ -11,6 +11,10 @@ import {
   collectSubmissionAnswers,
   parseFormFieldsJson,
 } from "@/lib/forms";
+import {
+  assignedPrizeSlotIds,
+  parsePrizeSlotsJson,
+} from "@/lib/prizes";
 import { slugify } from "@/lib/listings";
 import {
   listingCategories,
@@ -91,6 +95,8 @@ export async function submitToListingAction(formData: FormData) {
       listingId,
       userId: user.id,
       answers,
+      prizeSlotId: null,
+      prizeAmount: null,
       status: "pending",
       createdAt: new Date(),
       reviewedAt: null,
@@ -112,8 +118,8 @@ export async function upsertListingAction(formData: FormData) {
   const category = readString(formData, "category");
   const type = readString(formData, "type");
   const status = readString(formData, "status") || "open";
-  const rewardAmount = Number(readString(formData, "rewardAmount") || "0");
   const deadlineValue = readString(formData, "deadline");
+  const prizeSlots = parsePrizeSlotsJson(readString(formData, "prizeSlots"));
   const formFields = parseFormFieldsJson(readString(formData, "formFields"));
 
   if (!title || !details || !isCategory(category) || !isType(type)) {
@@ -130,7 +136,7 @@ export async function upsertListingAction(formData: FormData) {
     category,
     type,
     status,
-    rewardAmount: Number.isFinite(rewardAmount) ? rewardAmount : 0,
+    prizeSlots,
     deadline: deadlineValue ? new Date(deadlineValue) : null,
     formFields,
     createdBy: user.id,
@@ -175,6 +181,7 @@ export async function updateSubmissionStatusAction(formData: FormData) {
   await requireAdmin();
   const submissionId = readString(formData, "submissionId");
   const status = readString(formData, "status");
+  const prizeSlotId = readString(formData, "prizeSlotId");
 
   if (!submissionId || !isSubmissionStatus(status)) {
     throw new Error("A valid submission and status are required.");
@@ -188,21 +195,49 @@ export async function updateSubmissionStatusAction(formData: FormData) {
     throw new Error("Submission not found.");
   }
 
+  const listing = store.listings.find((row) => row.id === current.listingId);
+  if (!listing) {
+    throw new Error("Listing not found.");
+  }
+
+  if (status === "winner" || status === "paid") {
+    const slot = listing.prizeSlots.find((prize) => prize.id === prizeSlotId);
+    if (!slot) {
+      throw new Error("Choose a prize slot for this winner.");
+    }
+
+    const taken = assignedPrizeSlotIds(
+      store.submissions.filter((submission) => submission.id !== current.id),
+    );
+    if (taken.has(slot.id)) {
+      throw new Error("That prize slot is already assigned.");
+    }
+
+    current.prizeSlotId = slot.id;
+    current.prizeAmount = slot.amount;
+  } else {
+    current.prizeSlotId = null;
+    current.prizeAmount = null;
+  }
+
   current.status = status;
   current.reviewedAt = new Date();
 
-  const listing = store.listings.find((row) => row.id === current.listingId);
-  if (listing && status === "paid") {
+  const paidSlots = assignedPrizeSlotIds(
+    store.submissions.filter(
+      (submission) =>
+        submission.listingId === listing.id && submission.status === "paid",
+    ),
+  );
+  if (listing.prizeSlots.every((slot) => paidSlots.has(slot.id))) {
     listing.status = "closed";
     listing.updatedAt = new Date();
   }
 
   revalidatePath("/admin");
   revalidatePath("/dashboard");
-  if (listing) {
-    revalidatePath(`/bounties/${listing.slug}`);
-    revalidatePath(`/admin/bounties/${listing.id}`);
-  }
+  revalidatePath(`/bounties/${listing.slug}`);
+  revalidatePath(`/admin/bounties/${listing.id}`);
 }
 
 export async function signOutAction() {

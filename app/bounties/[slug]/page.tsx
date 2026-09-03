@@ -10,6 +10,7 @@ import {
   statusLabel,
   typeLabel,
 } from "@/lib/format";
+import { formatPrizeBreakdown, prizePoolTotal, prizeSlotLabel, sortPrizeSlots } from "@/lib/prizes";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,15 +74,24 @@ export default async function BountyPage({
       <aside className="space-y-4">
         <Card>
           <CardHeader>
-            <CardDescription>Prize</CardDescription>
+            <CardDescription>Prize pool</CardDescription>
             <CardTitle className="text-2xl">
-              {listing.rewardAmount.toLocaleString()}{" "}
-              <span className="text-base font-medium text-muted-foreground">USD</span>
+              {formatUsd(prizePoolTotal(listing.prizeSlots))}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {formatUsd(listing.rewardAmount)}
+            <ul className="space-y-2 text-sm">
+              {sortPrizeSlots(listing.prizeSlots).map((slot, index) => (
+                <li key={slot.id} className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    {prizeSlotLabel(index)}
+                  </span>
+                  <span className="font-medium">{formatUsd(slot.amount)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {formatPrizeBreakdown(listing.prizeSlots)}
             </p>
           </CardContent>
         </Card>

@@ -8,6 +8,7 @@ import {
 import { categoryLabel, statusLabel, typeLabel } from "@/lib/format";
 import { redirect } from "next/navigation";
 import { SubmissionFormBuilder } from "@/components/submission-form-builder";
+import { PrizeSlotsBuilder } from "@/components/prize-slots-builder";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -98,16 +99,6 @@ export function ListingForm({ listing }: { listing?: Listing }) {
             </NativeSelect>
           </Field>
           <Field>
-            <FieldLabel htmlFor="rewardAmount">Reward amount (USD)</FieldLabel>
-            <Input
-              id="rewardAmount"
-              name="rewardAmount"
-              type="number"
-              min="0"
-              defaultValue={listing?.rewardAmount ?? 100}
-            />
-          </Field>
-          <Field>
             <FieldLabel htmlFor="deadline">Deadline</FieldLabel>
             <Input
               id="deadline"
@@ -117,6 +108,8 @@ export function ListingForm({ listing }: { listing?: Listing }) {
             />
           </Field>
         </FieldGroup>
+
+        <PrizeSlotsBuilder initialSlots={listing?.prizeSlots} />
 
         <SubmissionFormBuilder initialFields={listing?.formFields} />
 

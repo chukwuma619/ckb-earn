@@ -5,7 +5,12 @@ import { listListingSubmissions } from "@/lib/submissions";
 import { ListingForm } from "@/components/listing-form";
 import { updateSubmissionStatusAction } from "@/lib/actions";
 import { answerDisplayValue } from "@/lib/forms";
-import { submissionStatusLabel } from "@/lib/format";
+import { formatUsd, submissionStatusLabel } from "@/lib/format";
+import {
+  assignedPrizeSlotIds,
+  prizeSlotLabel,
+  sortPrizeSlots,
+} from "@/lib/prizes";
 import { submissionStatuses } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +40,7 @@ export default async function EditListingPage({
   }
 
   const submissions = await listListingSubmissions(listing.id);
+  const takenSlots = assignedPrizeSlotIds(submissions.map((row) => row.submission));
 
   return (
     <main className="mx-auto grid w-full max-w-[70rem] gap-10 px-3 py-6 sm:px-4 lg:grid-cols-2">
@@ -86,9 +92,14 @@ export default async function EditListingPage({
                     );
                   })}
                 </dl>
+                {submission.prizeAmount != null ? (
+                  <p className="mt-2 text-sm font-medium">
+                    Awarded {formatUsd(submission.prizeAmount)}
+                  </p>
+                ) : null}
                 <form action={updateSubmissionStatusAction} className="mt-3">
                   <input type="hidden" name="submissionId" value={submission.id} />
-                  <FieldGroup className="flex-row items-end gap-2">
+                  <FieldGroup className="flex-row flex-wrap items-end gap-2">
                     <Field>
                       <FieldLabel htmlFor={`status-${submission.id}`}>Status</FieldLabel>
                       <NativeSelect
@@ -101,6 +112,32 @@ export default async function EditListingPage({
                             {submissionStatusLabel(status)}
                           </NativeSelectOption>
                         ))}
+                      </NativeSelect>
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor={`prize-${submission.id}`}>Prize</FieldLabel>
+                      <NativeSelect
+                        id={`prize-${submission.id}`}
+                        name="prizeSlotId"
+                        defaultValue={submission.prizeSlotId ?? ""}
+                      >
+                        <NativeSelectOption value="">No prize</NativeSelectOption>
+                        {sortPrizeSlots(listing.prizeSlots).map((slot, slotIndex) => {
+                          const taken =
+                            takenSlots.has(slot.id) &&
+                            submission.prizeSlotId !== slot.id;
+                          return (
+                            <NativeSelectOption
+                              key={slot.id}
+                              value={slot.id}
+                              disabled={taken}
+                            >
+                              {prizeSlotLabel(slotIndex)} ·{" "}
+                              {formatUsd(slot.amount)}
+                              {taken ? " (taken)" : ""}
+                            </NativeSelectOption>
+                          );
+                        })}
                       </NativeSelect>
                     </Field>
                     <Button type="submit" variant="outline" size="sm">

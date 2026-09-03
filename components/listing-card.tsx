@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/types";
-import { categoryLabel, formatDeadline, typeLabel } from "@/lib/format";
+import { categoryLabel, formatDeadline, formatUsd, typeLabel } from "@/lib/format";
+import { formatPrizeBreakdown, prizePoolTotal } from "@/lib/prizes";
 import { Logo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -60,10 +61,10 @@ export function ListingCard({
       </ItemContent>
       <ItemActions className="flex-col items-end">
         <span className="font-mono text-lg font-semibold tabular-nums tracking-tight">
-          ${listing.rewardAmount.toLocaleString()}
+          {formatUsd(prizePoolTotal(listing.prizeSlots))}
         </span>
         <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted-foreground">
-          USD
+          {formatPrizeBreakdown(listing.prizeSlots)}
         </span>
       </ItemActions>
     </Item>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile, isAdminEmail } from "@/lib/auth/session";
 import { listAdminListings } from "@/lib/listings";
-import { statusLabel } from "@/lib/format";
+import { formatUsd, statusLabel } from "@/lib/format";
+import { formatPrizeBreakdown, prizePoolTotal } from "@/lib/prizes";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -55,8 +56,10 @@ export default async function AdminPage() {
                   {statusLabel(listing.status)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {listing.rewardAmount.toLocaleString()}{" "}
-                  <span className="text-muted-foreground">USD</span>
+                  {formatUsd(prizePoolTotal(listing.prizeSlots))}
+                  <p className="text-xs font-normal text-muted-foreground">
+                    {formatPrizeBreakdown(listing.prizeSlots)}
+                  </p>
                 </TableCell>
               </TableRow>
             ))}
