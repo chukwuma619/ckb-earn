@@ -1,4 +1,5 @@
 import type {
+  ListingCategory,
   ListingStatus,
   ListingType,
   SubmissionStatus,
@@ -36,6 +37,23 @@ export function formatDeadline(deadline: Date | null) {
     month: "short",
     day: "numeric",
   });
+}
+
+export function categoryLabel(category: ListingCategory) {
+  switch (category) {
+    case "content":
+      return "Content";
+    case "development":
+      return "Development";
+    case "design":
+      return "Design";
+    case "growth":
+      return "Growth";
+    default: {
+      const _exhaustive: never = category;
+      return _exhaustive;
+    }
+  }
 }
 
 export function typeLabel(type: ListingType) {

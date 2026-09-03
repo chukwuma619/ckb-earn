@@ -15,7 +15,7 @@ type Store = {
 };
 
 const globalForStore = globalThis as typeof globalThis & {
-  __ckbEarnStoreV2?: Store;
+  __ckbEarnStoreV3?: Store;
 };
 
 function daysFromNow(days: number) {
@@ -46,6 +46,7 @@ function createSeedStore(): Store {
       description:
         "Create original memes that are actually funny and specific to CKB, Fiber, or DAO life. Low-effort templates without a CKB punchline will be skipped.",
       requirements: "Image or post link. Say where you published it.",
+      category: "growth",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -67,6 +68,7 @@ function createSeedStore(): Store {
         "Write a clear article that explains what new builders are creating on CKB, why it matters, and how others can get involved.",
       requirements:
         "Public article link, at least 800 words, and a short note on the angle you took.",
+      category: "content",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -87,6 +89,7 @@ function createSeedStore(): Store {
       description:
         "Identify and fix a critical bug in the Fiber network implementation.",
       requirements: "PR merged into the main repository.",
+      category: "development",
       type: "bounty",
       status: "open",
       forumThreadUrl: null,
@@ -101,6 +104,28 @@ function createSeedStore(): Store {
       updatedAt: now,
     },
     {
+      id: "listing-wallet-ui",
+      slug: "wallet-ui-redesign",
+      title: "Redesign a CKB wallet onboarding flow",
+      description:
+        "Produce a clean onboarding UI for a CKB wallet that helps first-time users create an address, fund it, and send a first transaction.",
+      requirements:
+        "Figma or public prototype link plus a short note on the key UX decisions.",
+      category: "design",
+      type: "bounty",
+      status: "open",
+      forumThreadUrl: null,
+      isMilestoneBased: false,
+      rewardUsd: 400,
+      rewardLabel: "$400 in CKB",
+      winnerCount: 2,
+      deadline: daysFromNow(21),
+      tags: ["ui", "wallet", "onboarding"],
+      createdBy: "system",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
       id: "listing-ecosystem-grant",
       slug: "ecosystem-tooling-grant",
       title: "Ecosystem tooling grant",
@@ -108,6 +133,7 @@ function createSeedStore(): Store {
         "Fund a small open-source tool that makes it easier for builders to ship on CKB.",
       requirements:
         "Short proposal with scope, timeline, and how the community benefits.",
+      category: "development",
       type: "grant",
       status: "open",
       forumThreadUrl: "https://talk.nervos.org/",
@@ -146,10 +172,10 @@ function createSeedStore(): Store {
 }
 
 export function getStore(): Store {
-  if (!globalForStore.__ckbEarnStoreV2) {
-    globalForStore.__ckbEarnStoreV2 = createSeedStore();
+  if (!globalForStore.__ckbEarnStoreV3) {
+    globalForStore.__ckbEarnStoreV3 = createSeedStore();
   }
-  return globalForStore.__ckbEarnStoreV2;
+  return globalForStore.__ckbEarnStoreV3;
 }
 
 export function newId(prefix: string) {

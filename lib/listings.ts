@@ -1,5 +1,5 @@
 import { getStore } from "@/lib/data/store";
-import type { ListingStatus, ListingType } from "@/lib/types";
+import type { ListingCategory, ListingStatus, ListingType } from "@/lib/types";
 
 export function slugify(value: string) {
   return value
@@ -11,6 +11,7 @@ export function slugify(value: string) {
 }
 
 export async function listPublicListings(filters: {
+  category?: ListingCategory | "all";
   type?: ListingType | "all";
   query?: string;
 }) {
@@ -19,6 +20,11 @@ export async function listPublicListings(filters: {
 
   return store.listings
     .filter((listing) => listing.status === "open")
+    .filter((listing) =>
+      !filters.category || filters.category === "all"
+        ? true
+        : listing.category === filters.category,
+    )
     .filter((listing) =>
       !filters.type || filters.type === "all"
         ? true

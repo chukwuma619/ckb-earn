@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Listing } from "@/lib/types";
-import { formatDeadline, typeLabel } from "@/lib/format";
+import { categoryLabel, formatDeadline, typeLabel } from "@/lib/format";
 import { Logo } from "@/components/brand/logo";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -47,6 +47,7 @@ export function ListingCard({
           <Badge variant={typeBadgeVariant(listing.type)}>
             {typeLabel(listing.type)}
           </Badge>
+          <Badge variant="outline">{categoryLabel(listing.category)}</Badge>
           {listing.forumThreadUrl ? (
             <Badge variant="outline" asChild>
               <a href={listing.forumThreadUrl} target="_blank" rel="noreferrer">

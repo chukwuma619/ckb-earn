@@ -1,3 +1,10 @@
+export const listingCategories = [
+  "content",
+  "development",
+  "design",
+  "growth",
+] as const;
+
 export const listingTypes = ["bounty", "grant"] as const;
 
 export const listingStatuses = [
@@ -15,6 +22,7 @@ export const submissionStatuses = [
   "paid",
 ] as const;
 
+export type ListingCategory = (typeof listingCategories)[number];
 export type ListingType = (typeof listingTypes)[number];
 export type ListingStatus = (typeof listingStatuses)[number];
 export type SubmissionStatus = (typeof submissionStatuses)[number];
@@ -39,6 +47,7 @@ export type Listing = {
   title: string;
   description: string;
   requirements: string;
+  category: ListingCategory;
   type: ListingType;
   status: ListingStatus;
   forumThreadUrl: string | null;
