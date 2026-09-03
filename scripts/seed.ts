@@ -1,6 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "../lib/db";
 import { listings, type ListingCategory, type ListingType } from "../lib/db/schema";
+
+const removedSlugs = [
+  "spark-milestone-proposals",
+  "permanent-bounty-translations",
+] as const;
 
 const seeds: Array<{
   slug: string;
@@ -50,40 +55,6 @@ const seeds: Array<{
     tags: ["writing", "builders"],
   },
   {
-    slug: "spark-milestone-proposals",
-    title: "Spark Milestone Proposals",
-    description:
-      "Submit a proposal for a Spark mini-grant. This is for small, milestone-based projects that benefit the CKB ecosystem.",
-    requirements:
-      "A detailed proposal including milestones, budget, and expected impact.",
-    category: "build",
-    type: "spark",
-    priority: "standard",
-    rewardUsd: 1000,
-    rewardLabel: "Up to $1000 in CKB",
-    winnerCount: 5,
-    days: 30,
-    tags: ["spark", "grants", "milestones"],
-    forumThreadUrl: "https://talk.nervos.org/t/spark-mini-grants/1234",
-    isMilestoneBased: true,
-  },
-  {
-    slug: "permanent-bounty-translations",
-    title: "Permanent Translation Bounty",
-    description:
-      "Translate CKB documentation, articles, and announcements into other languages. This is a recurring bounty.",
-    requirements:
-      "Link to the translated content and the original source.",
-    category: "content",
-    type: "permanent",
-    priority: "standard",
-    rewardUsd: 100,
-    rewardLabel: "$100 in CKB per translation",
-    winnerCount: 20,
-    days: 365,
-    tags: ["translation", "recurring"],
-  },
-  {
     slug: "urgent-bug-fix-fiber",
     title: "Urgent: Fix critical bug in Fiber",
     description:
@@ -103,6 +74,11 @@ const seeds: Array<{
 
 async function main() {
   const db = getDb();
+
+  await db.delete(listings).where(inArray(listings.slug, [...removedSlugs]));
+  await db
+    .delete(listings)
+    .where(sql`${listings.type} in ('spark', 'permanent')`);
 
   for (const seed of seeds) {
     const existing = await db

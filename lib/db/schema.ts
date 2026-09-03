@@ -19,7 +19,7 @@ export const listingCategories = [
   "dao",
 ] as const;
 
-export const listingTypes = ["bounty", "permanent", "spark", "grant"] as const;
+export const listingTypes = ["bounty", "grant"] as const;
 
 export const listingStatuses = [
   "draft",

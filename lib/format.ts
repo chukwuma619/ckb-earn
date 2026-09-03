@@ -65,10 +65,6 @@ export function typeLabel(type: ListingType) {
   switch (type) {
     case "bounty":
       return "Bounty";
-    case "permanent":
-      return "Permanent";
-    case "spark":
-      return "Spark";
     case "grant":
       return "Grant";
     default: {

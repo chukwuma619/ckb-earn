@@ -95,13 +95,7 @@ export function ListingFilters({
               })}
               active={currentType === value}
             >
-              {value === "bounty"
-                ? "Bounties"
-                : value === "grant"
-                  ? "Grants"
-                  : value === "permanent"
-                    ? "Permanent"
-                    : "Spark"}
+              {value === "bounty" ? "Bounties" : "Grants"}
             </SidebarLink>
           ))}
         </div>

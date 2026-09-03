@@ -25,12 +25,9 @@ function isOpen(listing: Listing) {
 
 function typeBadgeVariant(type: Listing["type"]) {
   switch (type) {
-    case "spark":
-      return "spark" as const;
     case "grant":
       return "outline" as const;
     case "bounty":
-    case "permanent":
       return "secondary" as const;
     default: {
       const _exhaustive: never = type;

@@ -76,8 +76,7 @@ export default async function Home({
               Community Keeps Building
             </h1>
             <p className="lead mt-4 max-w-2xl">
-              Discover bounties, grants, and Spark mini-grants. One profile. Paid
-              in CKB.
+              Discover bounties and grants. One profile. Paid in CKB.
             </p>
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row">

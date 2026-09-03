@@ -19,19 +19,6 @@ export async function SiteHeader() {
             <Button variant="ghost" size="sm" asChild>
               <Link href="/?type=grant">Grants</Link>
             </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/?type=spark">Spark</Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-            {profile?.role === "reviewer" ||
-            profile?.role === "committee" ||
-            profile?.isAdmin ? (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin">Admin</Link>
-              </Button>
-            ) : null}
           </nav>
         </div>
 
