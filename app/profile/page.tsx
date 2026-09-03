@@ -1,6 +1,17 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { updateProfileAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export const dynamic = "force-dynamic";
 
@@ -12,62 +23,56 @@ export default async function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-xl px-4 py-8">
-      <h1 className="text-xl font-semibold text-slate-800">Profile</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Reviewers use this to pay you in CKB after you win.
-      </p>
-      <form action={updateProfileAction} className="mt-6 space-y-4">
-        <label className="block text-xs font-medium text-slate-500">
-          Display name
-          <input
-            name="name"
-            defaultValue={profile.name}
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-          />
-        </label>
-        <label className="block text-xs font-medium text-slate-500">
-          CKB address
-          <input
-            name="ckbAddress"
-            defaultValue={profile.ckbAddress}
-            placeholder="ckt1… or ckb1…"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-          />
-        </label>
-        <label className="block text-xs font-medium text-slate-500">
-          X / Twitter
-          <input
-            name="twitter"
-            defaultValue={profile.twitter}
-            placeholder="@handle"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-          />
-        </label>
-        <label className="block text-xs font-medium text-slate-500">
-          Skills
-          <input
-            name="skills"
-            defaultValue={profile.skills}
-            placeholder="Writing, design, Rust, Fiber"
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-          />
-        </label>
-        <label className="block text-xs font-medium text-slate-500">
-          Bio
-          <textarea
-            name="bio"
-            rows={5}
-            defaultValue={profile.bio}
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-          />
-        </label>
-        <button
-          type="submit"
-          className="btn rounded-md bg-brand px-4 py-2 text-sm font-medium text-white"
-        >
-          Save
-        </button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>
+            Reviewers use this to pay you in CKB after you win.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={updateProfileAction}>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="name">Display name</FieldLabel>
+                <Input id="name" name="name" defaultValue={profile.name} />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="ckbAddress">CKB address</FieldLabel>
+                <Input
+                  id="ckbAddress"
+                  name="ckbAddress"
+                  defaultValue={profile.ckbAddress}
+                  placeholder="ckt1… or ckb1…"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="twitter">X / Twitter</FieldLabel>
+                <Input
+                  id="twitter"
+                  name="twitter"
+                  defaultValue={profile.twitter}
+                  placeholder="@handle"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="skills">Skills</FieldLabel>
+                <Input
+                  id="skills"
+                  name="skills"
+                  defaultValue={profile.skills}
+                  placeholder="Writing, design, Rust, Fiber"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="bio">Bio</FieldLabel>
+                <Textarea id="bio" name="bio" rows={5} defaultValue={profile.bio} />
+              </Field>
+              <Button type="submit">Save</Button>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }

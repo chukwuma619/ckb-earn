@@ -3,48 +3,66 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { signInWithEmail } from "./actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export default function SignInPage() {
   const [state, formAction, isPending] = useActionState(signInWithEmail, null);
 
   return (
     <main className="mx-auto flex min-h-[70vh] w-full max-w-sm flex-col justify-center px-4">
-      <h1 className="text-xl font-semibold text-slate-800">Login</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Submit work and track CKB payouts.
-      </p>
-      <form action={formAction} className="mt-6 space-y-3">
-        <input
-          name="email"
-          type="email"
-          required
-          placeholder="Email"
-          className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-        />
-        <input
-          name="password"
-          type="password"
-          required
-          placeholder="Password"
-          className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-        />
-        {state?.error ? (
-          <p className="text-sm text-danger">{state.error}</p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="btn w-full rounded-md bg-brand py-2 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {isPending ? "Logging in…" : "Login"}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-slate-500">
-        New here?{" "}
-        <Link href="/auth/sign-up" className="font-medium text-slate-800">
-          Sign Up
-        </Link>
-      </p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Submit work and track CKB payouts.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={formAction}>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input id="email" name="email" type="email" required placeholder="Email" />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="Password"
+                />
+              </Field>
+              {state?.error ? (
+                <Alert variant="destructive">
+                  <AlertDescription>{state.error}</AlertDescription>
+                </Alert>
+              ) : null}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Logging in…" : "Login"}
+              </Button>
+            </FieldGroup>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <p className="text-sm text-muted-foreground">
+            New here?{" "}
+            <Button variant="link" className="h-auto p-0" asChild>
+              <Link href="/auth/sign-up">Sign Up</Link>
+            </Button>
+          </p>
+        </CardFooter>
+      </Card>
     </main>
   );
 }

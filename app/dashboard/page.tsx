@@ -3,6 +3,22 @@ import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { listUserSubmissions } from "@/lib/submissions";
 import { submissionStatusLabel } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
 
@@ -16,42 +32,54 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-[70rem] px-3 py-6 sm:px-4">
-      <h1 className="text-xl font-semibold text-slate-800">Your Submissions</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-xl font-semibold">Your Submissions</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
         Track status and payouts from one place.
       </p>
       <div className="mt-6">
         {rows.length === 0 ? (
-          <p className="py-16 text-center text-sm text-slate-500">
-            No submissions yet.{" "}
-            <Link href="/" className="font-medium text-slate-800">
-              Browse listings
-            </Link>
-          </p>
+          <Empty className="border border-dashed py-16">
+            <EmptyHeader>
+              <EmptyTitle>No submissions yet</EmptyTitle>
+              <EmptyDescription>Browse listings and submit your work.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button asChild>
+                <Link href="/">Browse listings</Link>
+              </Button>
+            </EmptyContent>
+          </Empty>
         ) : (
-          <div className="divide-y divide-slate-200 border-y border-slate-200">
-            {rows.map(({ submission, listing }) => (
-              <Link
-                key={submission.id}
-                href={`/bounties/${listing.slug}`}
-                className="flex items-center justify-between gap-4 py-4 hover:bg-gray-50"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">
-                    {listing.title}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {submissionStatusLabel(submission.status)} ·{" "}
-                    {submission.createdAt.toLocaleDateString()}
-                  </p>
-                </div>
-                <p className="text-sm font-semibold text-slate-600">
-                  {listing.rewardUsd.toLocaleString()}{" "}
-                  <span className="font-medium text-gray-400">USD</span>
-                </p>
-              </Link>
-            ))}
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Listing</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Reward</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map(({ submission, listing }) => (
+                <TableRow key={submission.id}>
+                  <TableCell>
+                    <Button variant="link" className="h-auto p-0" asChild>
+                      <Link href={`/bounties/${listing.slug}`}>{listing.title}</Link>
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      {submission.createdAt.toLocaleDateString()}
+                    </p>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {submissionStatusLabel(submission.status)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {listing.rewardUsd.toLocaleString()}{" "}
+                    <span className="text-muted-foreground">USD</span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </div>
     </main>

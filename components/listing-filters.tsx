@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { listingCategories, listingTypes, listingPriorities } from "@/lib/db/schema";
+import { listingCategories, listingPriorities, listingTypes } from "@/lib/db/schema";
 import { categoryLabel, priorityLabel } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 function hrefFor(next: { type?: string; category?: string; priority?: string; q?: string }) {
   const params = new URLSearchParams();
@@ -30,16 +33,14 @@ function SidebarLink({
   children: React.ReactNode;
 }) {
   return (
-    <Link
-      href={href}
-      className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-        active
-          ? "bg-accent/10 text-accent"
-          : "text-muted hover:bg-surface-hover hover:text-foreground"
-      }`}
+    <Button
+      variant={active ? "secondary" : "ghost"}
+      size="sm"
+      className="w-full justify-start"
+      asChild
     >
-      {children}
-    </Link>
+      <Link href={href}>{children}</Link>
+    </Button>
   );
 }
 
@@ -59,30 +60,23 @@ export function ListingFilters({
   const currentPriority = priority ?? "all";
 
   return (
-    <div className="space-y-8">
-      {/* Search Section */}
-      <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
-          Search
-        </h3>
-        <form className="relative">
+    <FieldGroup className="gap-8">
+      <Field>
+        <FieldLabel>Search</FieldLabel>
+        <form>
           {currentType !== "all" && <input type="hidden" name="type" value={currentType} />}
-          {currentCategory !== "all" && <input type="hidden" name="category" value={currentCategory} />}
-          {currentPriority !== "all" && <input type="hidden" name="priority" value={currentPriority} />}
-          <input
-            name="q"
-            defaultValue={query}
-            placeholder="Keywords..."
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-          />
+          {currentCategory !== "all" && (
+            <input type="hidden" name="category" value={currentCategory} />
+          )}
+          {currentPriority !== "all" && (
+            <input type="hidden" name="priority" value={currentPriority} />
+          )}
+          <Input name="q" defaultValue={query} placeholder="Keywords..." />
         </form>
-      </div>
+      </Field>
 
-      {/* Program Type Section */}
-      <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
-          Program Type
-        </h3>
+      <Field>
+        <FieldLabel>Program Type</FieldLabel>
         <div className="flex flex-col gap-1">
           <SidebarLink
             href={hrefFor({ category: currentCategory, priority: currentPriority, q: query })}
@@ -101,17 +95,20 @@ export function ListingFilters({
               })}
               active={currentType === value}
             >
-              {value === "bounty" ? "Bounties" : value === "grant" ? "Grants" : value === "permanent" ? "Permanent" : "Spark"}
+              {value === "bounty"
+                ? "Bounties"
+                : value === "grant"
+                  ? "Grants"
+                  : value === "permanent"
+                    ? "Permanent"
+                    : "Spark"}
             </SidebarLink>
           ))}
         </div>
-      </div>
+      </Field>
 
-      {/* Tracks Section */}
-      <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
-          Pathways
-        </h3>
+      <Field>
+        <FieldLabel>Pathways</FieldLabel>
         <div className="flex flex-col gap-1">
           <SidebarLink
             href={hrefFor({ type: currentType, priority: currentPriority, q: query })}
@@ -134,13 +131,10 @@ export function ListingFilters({
             </SidebarLink>
           ))}
         </div>
-      </div>
+      </Field>
 
-      {/* Priorities Section */}
-      <div>
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">
-          Priority
-        </h3>
+      <Field>
+        <FieldLabel>Priority</FieldLabel>
         <div className="flex flex-col gap-1">
           <SidebarLink
             href={hrefFor({ type: currentType, category: currentCategory, q: query })}
@@ -163,7 +157,7 @@ export function ListingFilters({
             </SidebarLink>
           ))}
         </div>
-      </div>
-    </div>
+      </Field>
+    </FieldGroup>
   );
 }
