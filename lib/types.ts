@@ -17,8 +17,6 @@ export const listingStatuses = [
   "closed",
 ] as const;
 
-export const listingPriorities = ["standard", "high", "urgent"] as const;
-
 export const submissionStatuses = [
   "pending",
   "winner",
@@ -29,7 +27,6 @@ export const submissionStatuses = [
 export type ListingCategory = (typeof listingCategories)[number];
 export type ListingType = (typeof listingTypes)[number];
 export type ListingStatus = (typeof listingStatuses)[number];
-export type ListingPriority = (typeof listingPriorities)[number];
 export type SubmissionStatus = (typeof submissionStatuses)[number];
 
 export type Profile = {
@@ -55,7 +52,6 @@ export type Listing = {
   category: ListingCategory;
   type: ListingType;
   status: ListingStatus;
-  priority: ListingPriority;
   forumThreadUrl: string | null;
   isMilestoneBased: boolean;
   rewardUsd: number;

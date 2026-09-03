@@ -1,7 +1,6 @@
 import { getStore } from "@/lib/data/store";
 import type {
   ListingCategory,
-  ListingPriority,
   ListingStatus,
   ListingType,
 } from "@/lib/types";
@@ -18,7 +17,6 @@ export function slugify(value: string) {
 export async function listPublicListings(filters: {
   category?: ListingCategory | "all";
   type?: ListingType | "all";
-  priority?: ListingPriority | "all";
   query?: string;
 }) {
   const store = getStore();
@@ -35,11 +33,6 @@ export async function listPublicListings(filters: {
       !filters.type || filters.type === "all"
         ? true
         : listing.type === filters.type,
-    )
-    .filter((listing) =>
-      !filters.priority || filters.priority === "all"
-        ? true
-        : listing.priority === filters.priority,
     )
     .filter((listing) =>
       !needle

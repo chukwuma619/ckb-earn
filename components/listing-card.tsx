@@ -11,17 +11,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { cn } from "@/lib/utils";
-
-function isOpen(listing: Listing) {
-  if (listing.status !== "open") {
-    return false;
-  }
-  if (!listing.deadline) {
-    return true;
-  }
-  return listing.deadline.getTime() > Date.now();
-}
 
 function typeBadgeVariant(type: Listing["type"]) {
   switch (type) {
@@ -43,18 +32,8 @@ export function ListingCard({
   listing: Listing;
   submissions?: number;
 }) {
-  const featured =
-    listing.priority === "urgent" ||
-    (listing.priority === "high" && isOpen(listing));
-
   return (
-    <Item
-      variant="outline"
-      className={cn(
-        "lift transition-transform duration-150 ease-[var(--ease-out)]",
-        featured && "border-reactor/30 bg-reactor-wash/40 dark:bg-reactor/10",
-      )}
-    >
+    <Item variant="outline" className="lift transition-transform duration-150 ease-[var(--ease-out)]">
       <ItemMedia>
         <div className="flex size-12 items-center justify-center rounded-[4px] border border-slate/10 bg-stone-2 dark:border-void-line dark:bg-void-mid">
           <Logo className="size-5" />
@@ -68,15 +47,6 @@ export function ListingCard({
           <Badge variant={typeBadgeVariant(listing.type)}>
             {typeLabel(listing.type)}
           </Badge>
-          {featured ? (
-            <Badge
-              variant={
-                listing.priority === "urgent" ? "destructive" : "default"
-              }
-            >
-              {listing.priority === "urgent" ? "Urgent" : "High"}
-            </Badge>
-          ) : null}
           {listing.forumThreadUrl ? (
             <Badge variant="outline" asChild>
               <a href={listing.forumThreadUrl} target="_blank" rel="noreferrer">

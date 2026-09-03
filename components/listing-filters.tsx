@@ -1,20 +1,17 @@
 import Link from "next/link";
-import { listingCategories, listingPriorities, listingTypes } from "@/lib/types";
-import { categoryLabel, priorityLabel } from "@/lib/format";
+import { listingCategories, listingTypes } from "@/lib/types";
+import { categoryLabel } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
-function hrefFor(next: { type?: string; category?: string; priority?: string; q?: string }) {
+function hrefFor(next: { type?: string; category?: string; q?: string }) {
   const params = new URLSearchParams();
   if (next.type && next.type !== "all") {
     params.set("type", next.type);
   }
   if (next.category && next.category !== "all") {
     params.set("category", next.category);
-  }
-  if (next.priority && next.priority !== "all") {
-    params.set("priority", next.priority);
   }
   if (next.q) {
     params.set("q", next.q);
@@ -47,17 +44,14 @@ function SidebarLink({
 export function ListingFilters({
   category,
   type,
-  priority,
   query,
 }: {
   category?: string;
   type?: string;
-  priority?: string;
   query?: string;
 }) {
   const currentType = type ?? "all";
   const currentCategory = category ?? "all";
-  const currentPriority = priority ?? "all";
 
   return (
     <FieldGroup className="gap-8">
@@ -68,9 +62,6 @@ export function ListingFilters({
           {currentCategory !== "all" && (
             <input type="hidden" name="category" value={currentCategory} />
           )}
-          {currentPriority !== "all" && (
-            <input type="hidden" name="priority" value={currentPriority} />
-          )}
           <Input name="q" defaultValue={query} placeholder="Keywords..." />
         </form>
       </Field>
@@ -79,7 +70,7 @@ export function ListingFilters({
         <FieldLabel>Program Type</FieldLabel>
         <div className="flex flex-col gap-1">
           <SidebarLink
-            href={hrefFor({ category: currentCategory, priority: currentPriority, q: query })}
+            href={hrefFor({ category: currentCategory, q: query })}
             active={currentType === "all"}
           >
             All Programs
@@ -90,7 +81,6 @@ export function ListingFilters({
               href={hrefFor({
                 type: value,
                 category: currentCategory,
-                priority: currentPriority,
                 q: query,
               })}
               active={currentType === value}
@@ -105,7 +95,7 @@ export function ListingFilters({
         <FieldLabel>Pathways</FieldLabel>
         <div className="flex flex-col gap-1">
           <SidebarLink
-            href={hrefFor({ type: currentType, priority: currentPriority, q: query })}
+            href={hrefFor({ type: currentType, q: query })}
             active={currentCategory === "all"}
           >
             All Pathways
@@ -116,38 +106,11 @@ export function ListingFilters({
               href={hrefFor({
                 type: currentType,
                 category: value,
-                priority: currentPriority,
                 q: query,
               })}
               active={currentCategory === value}
             >
               {categoryLabel(value)}
-            </SidebarLink>
-          ))}
-        </div>
-      </Field>
-
-      <Field>
-        <FieldLabel>Priority</FieldLabel>
-        <div className="flex flex-col gap-1">
-          <SidebarLink
-            href={hrefFor({ type: currentType, category: currentCategory, q: query })}
-            active={currentPriority === "all"}
-          >
-            All Priorities
-          </SidebarLink>
-          {listingPriorities.map((value) => (
-            <SidebarLink
-              key={value}
-              href={hrefFor({
-                type: currentType,
-                category: currentCategory,
-                priority: value,
-                q: query,
-              })}
-              active={currentPriority === value}
-            >
-              {priorityLabel(value)}
             </SidebarLink>
           ))}
         </div>

@@ -1,6 +1,5 @@
 import type {
   ListingCategory,
-  ListingPriority,
   ListingStatus,
   ListingType,
   SubmissionStatus,
@@ -88,21 +87,6 @@ export function statusLabel(status: ListingStatus) {
       return "Closed";
     default: {
       const _exhaustive: never = status;
-      return _exhaustive;
-    }
-  }
-}
-
-export function priorityLabel(priority: ListingPriority) {
-  switch (priority) {
-    case "standard":
-      return "Standard";
-    case "high":
-      return "High";
-    case "urgent":
-      return "Urgent";
-    default: {
-      const _exhaustive: never = priority;
       return _exhaustive;
     }
   }

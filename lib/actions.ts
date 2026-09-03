@@ -10,12 +10,10 @@ import { getStore, newId } from "@/lib/data/store";
 import { slugify } from "@/lib/listings";
 import {
   listingCategories,
-  listingPriorities,
   listingStatuses,
   listingTypes,
   submissionStatuses,
   type ListingCategory,
-  type ListingPriority,
   type ListingStatus,
   type ListingType,
   type SubmissionStatus,
@@ -35,10 +33,6 @@ function isType(value: string): value is ListingType {
 
 function isStatus(value: string): value is ListingStatus {
   return (listingStatuses as readonly string[]).includes(value);
-}
-
-function isPriority(value: string): value is ListingPriority {
-  return (listingPriorities as readonly string[]).includes(value);
 }
 
 function isSubmissionStatus(value: string): value is SubmissionStatus {
@@ -119,7 +113,6 @@ export async function upsertListingAction(formData: FormData) {
   const category = readString(formData, "category");
   const type = readString(formData, "type");
   const status = readString(formData, "status") || "open";
-  const priority = readString(formData, "priority") || "standard";
   const rewardUsd = Number(readString(formData, "rewardUsd") || "0");
   const rewardLabel = readString(formData, "rewardLabel");
   const winnerCount = Number(readString(formData, "winnerCount") || "1");
@@ -133,8 +126,8 @@ export async function upsertListingAction(formData: FormData) {
     throw new Error("Title, description, category, and type are required.");
   }
 
-  if (!isStatus(status) || !isPriority(priority)) {
-    throw new Error("Invalid listing status or priority.");
+  if (!isStatus(status)) {
+    throw new Error("Invalid listing status.");
   }
 
   const values = {
@@ -144,7 +137,6 @@ export async function upsertListingAction(formData: FormData) {
     category,
     type,
     status,
-    priority,
     rewardUsd: Number.isFinite(rewardUsd) ? rewardUsd : 0,
     rewardLabel: rewardLabel || `$${rewardUsd} in CKB`,
     winnerCount: Number.isFinite(winnerCount) ? winnerCount : 1,

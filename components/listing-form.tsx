@@ -1,12 +1,11 @@
 import { upsertListingAction } from "@/lib/actions";
 import {
   listingCategories,
-  listingPriorities,
   listingStatuses,
   listingTypes,
   type Listing,
 } from "@/lib/types";
-import { categoryLabel, priorityLabel, statusLabel, typeLabel } from "@/lib/format";
+import { categoryLabel, statusLabel, typeLabel } from "@/lib/format";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -97,21 +96,6 @@ export function ListingForm({ listing }: { listing?: Listing }) {
               {listingStatuses.map((value) => (
                 <NativeSelectOption key={value} value={value}>
                   {statusLabel(value)}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="priority">Priority</FieldLabel>
-            <NativeSelect
-              id="priority"
-              name="priority"
-              defaultValue={listing?.priority ?? "standard"}
-              className="w-full"
-            >
-              {listingPriorities.map((value) => (
-                <NativeSelectOption key={value} value={value}>
-                  {priorityLabel(value)}
                 </NativeSelectOption>
               ))}
             </NativeSelect>

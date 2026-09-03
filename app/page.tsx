@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ListingCard } from "@/components/listing-card";
 import { ListingFilters } from "@/components/listing-filters";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { listingCategories, listingPriorities, listingTypes } from "@/lib/types";
-import type { ListingCategory, ListingPriority, ListingType } from "@/lib/types";
+import { listingCategories, listingTypes } from "@/lib/types";
+import type { ListingCategory, ListingType } from "@/lib/types";
 import { countSubmissions, listPublicListings } from "@/lib/listings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,26 +36,16 @@ function asType(value?: string): ListingType | "all" | undefined {
     : undefined;
 }
 
-function asPriority(value?: string): ListingPriority | "all" | undefined {
-  if (!value || value === "all") {
-    return value === "all" ? "all" : undefined;
-  }
-  return (listingPriorities as readonly string[]).includes(value)
-    ? (value as ListingPriority)
-    : undefined;
-}
-
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; type?: string; priority?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; type?: string }>;
 }) {
   const params = await searchParams;
   const { user } = await getCurrentProfile();
   const listings = await listPublicListings({
     category: asCategory(params.category),
     type: asType(params.type),
-    priority: asPriority(params.priority),
     query: params.q,
   });
   const counts = await Promise.all(
@@ -101,7 +91,6 @@ export default async function Home({
               <ListingFilters
                 category={params.category}
                 type={params.type}
-                priority={params.priority}
                 query={params.q}
               />
             </CardContent>
